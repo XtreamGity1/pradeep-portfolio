@@ -11,15 +11,34 @@ describe('Process', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders every step in order with a zero-padded index', () => {
-    render(<Process />);
-    const items = within(screen.getByRole('list')).getAllByRole('listitem');
+  test('renders every step in order as an ordered timeline with a zero-padded index', () => {
+    const { container } = render(<Process />);
+    const list = screen.getByRole('list', { name: /process/i });
+    expect(container.querySelector('ol')).toBe(list);
+    const items = within(list).getAllByRole('listitem');
     expect(items).toHaveLength(steps.length);
     steps.forEach((item, i) => {
       const step = within(items[i]);
       expect(step.getByText(String(i + 1).padStart(2, '0'))).toBeInTheDocument();
-      expect(step.getByRole('heading', { level: 3, name: new RegExp(item.step) })).toBeInTheDocument();
+      expect(
+        step.getByRole('heading', { level: 3, name: new RegExp(`step ${i + 1}:\\s*${item.step}`, 'i') }),
+      ).toBeInTheDocument();
       expect(step.getByText(item.body)).toBeInTheDocument();
+    });
+  });
+
+  test('each step shows its timing and what the client provides', () => {
+    render(<Process />);
+    const items = within(screen.getByRole('list', { name: /process/i })).getAllByRole('listitem');
+    steps.forEach((item, i) => {
+      expect(item.duration).toBeTruthy();
+      expect(item.provide).toBeTruthy();
+      const step = within(items[i]);
+      expect(step.getByText(item.duration)).toBeInTheDocument();
+      // Labelled pair: "You provide" → the client's input for this step.
+      const term = step.getByText(/you provide/i);
+      expect(term.tagName).toBe('DT');
+      expect(term.nextElementSibling).toHaveTextContent(item.provide);
     });
   });
 });
