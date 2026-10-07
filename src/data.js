@@ -1,15 +1,16 @@
 // All portfolio content lives here — edit this file to personalize the site.
 
+// Placeholder identity — replace name, initials, location and email with your own.
 export const profile = {
   name: 'Alex Rivera',
   initials: 'AR',
-  location: 'Based in Los Angeles · Working worldwide',
+  location: 'Based in Los Angeles · Editing remotely',
   email: 'hello@alexrivera.studio',
-  roles: ['YouTube videos', 'short-form', 'brand films', 'podcasts', 'documentaries'],
+  roles: ['YouTube videos', 'Shorts', 'Reels', 'podcast clips', 'vlogs'],
   tagline:
-    'Content editor helping creators and brands turn raw footage into stories people actually finish watching.',
+    'Video editor for YouTube creators and short-form — turning raw footage into videos people want to finish.',
   about:
-    'I cut for retention, not just rhythm. Every frame earns its place — hooks in the first three seconds, pacing that respects the viewer, and sound design that makes the story land. Six years, one obsession: keeping people watching.',
+    'I cut for retention, not just rhythm. Every frame should earn its place — a hook in the first three seconds, pacing that respects the viewer, and sound that makes the story land. I’m early in my career and editing every day, so you get fresh eyes, fast replies and someone who obsesses over your video like it’s their own.',
   socials: [
     { label: 'YouTube', href: 'https://youtube.com' },
     { label: 'Instagram', href: 'https://instagram.com' },
