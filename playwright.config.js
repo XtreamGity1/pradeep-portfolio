@@ -5,7 +5,8 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   reporter: 'list',
-  use: { baseURL: 'http://localhost:4173' },
+  // Set BASE_URL to test an already-running server instead of building one.
+  use: { baseURL: process.env.BASE_URL ?? 'http://localhost:4173' },
   projects: [
     { name: 'mobile-small', use: { ...devices['Galaxy S8'] } },
     { name: 'mobile', use: { ...devices['Pixel 7'] } },
@@ -14,7 +15,7 @@ export default defineConfig({
     { name: 'tablet-landscape', use: { ...devices['Galaxy Tab S9 landscape'] } },
     { name: 'laptop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
   ],
-  webServer: {
+  webServer: process.env.BASE_URL ? undefined : {
     command: 'npm run build && npm run preview -- --port 4173 --strictPort',
     url: 'http://localhost:4173',
     reuseExistingServer: !process.env.CI,
