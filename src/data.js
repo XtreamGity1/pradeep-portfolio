@@ -18,8 +18,19 @@ export const profile = {
   ],
 };
 
-// Hero showreel (modal player).
-export const showreel = {};
+// Hero showreel (modal player). Use `src` + `poster` for a self-hosted file, or set
+// `embedUrl` to a YouTube/Vimeo embed link (e.g. 'https://player.vimeo.com/video/123')
+// and it takes priority over the native player.
+export const showreel = {
+  cta: 'Watch my reel',
+  title: '2026 showreel',
+  duration: '1:12', // PLACEHOLDER: match your reel's runtime.
+  description: 'A minute of my favourite cuts: personal projects, spec edits and re-edits, built around hooks and pacing.',
+  // PLACEHOLDER: royalty-free sample clip + random poster. Swap in your own reel.
+  src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
+  poster: 'https://picsum.photos/seed/showreel/1280/720',
+  embedUrl: '',
+};
 
 export const navItems = [
   { label: 'Work', href: '#work' },
@@ -28,9 +39,10 @@ export const navItems = [
   { label: 'Contact', href: '#contact' },
 ];
 
+// Scrolling rows under the hero: formats I cut for, and the skills that keep people watching.
 export const marquee = [
-  'Long-form · Shorts · Reels · TikTok · Podcasts ·',
-  'Color grading · Sound design · Motion graphics ·',
+  { label: 'Platforms & formats', items: ['YouTube', 'Shorts', 'Reels', 'TikTok', 'Podcasts', 'Vlogs'] },
+  { label: 'Craft', items: ['Hooks', 'Pacing', 'Retention edits', 'Sound design', 'Color grading', 'Motion graphics'] },
 ];
 
 export const stats = [

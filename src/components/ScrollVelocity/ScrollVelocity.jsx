@@ -121,7 +121,7 @@ export const ScrollVelocity = ({
   }
 
   return (
-    <section>
+    <div>
       {texts.map((text, index) => (
         <VelocityText
           key={index}
@@ -140,7 +140,7 @@ export const ScrollVelocity = ({
           {text}
         </VelocityText>
       ))}
-    </section>
+    </div>
   );
 };
 
