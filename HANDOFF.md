@@ -32,10 +32,9 @@ The River grade before/after was dropped at the user's request (the reel has no 
 three comparisons remain: portrait grade, sky replacement, greenscreen.
 
 ## Waiting on the user
-- **Contact details**: the reel's end card shows `hello.pradeepvideo@gmail.com` and `@pradeep_9.k`.
-  Site still uses `hello@example.com` / `example.com` placeholders (data.js `profile`, `index.html`).
-  Ask before switching — it decides where inquiries go.
-- Real domain for canonical / og:url.
+- **Contact details**: email is `hello.pradeepvideo@gmail.com` (user confirmed). The reel also shows
+  `@pradeep_9.k`; ask before adding it.
+- Real domain for canonical / og:url / JSON-LD url in `index.html` (still `example.com`).
 - The 8 merged worker worktrees in `.claude/worktrees/` (+ `worktree-agent-*` branches) can be deleted.
 
 ## Media pipeline (ffmpeg — no Swift)
