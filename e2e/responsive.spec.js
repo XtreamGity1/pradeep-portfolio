@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const SECTION_IDS = ['top', 'about', 'work', 'services', 'process', 'testimonials', 'contact'];
+const SECTION_IDS = ['top', 'about', 'work', 'craft', 'services', 'pricing', 'process', 'testimonials', 'faq', 'contact'];
 const MD_BREAKPOINT = 768;
 
 const isNarrow = page => page.viewportSize().width < MD_BREAKPOINT;

@@ -18,6 +18,9 @@ export const profile = {
   ],
 };
 
+// Hero showreel (modal player).
+export const showreel = {};
+
 export const navItems = [
   { label: 'Work', href: '#work' },
   { label: 'About', href: '#about' },
@@ -83,6 +86,9 @@ export const projects = [
   },
 ];
 
+// Before/after comparisons for the craft section.
+export const beforeAfter = [];
+
 export const services = [
   {
     title: 'Long-form YouTube',
@@ -105,6 +111,9 @@ export const services = [
     tag: '04',
   },
 ];
+
+// Pricing packages.
+export const packages = [];
 
 export const process = [
   { step: 'Brief', body: 'We align on audience, goals, references and the one feeling the video should leave.' },
@@ -138,3 +147,11 @@ export const testimonials = [
     role: 'Head of Marketing, Ritual Coffee Co.',
   },
 ];
+
+// Client names shown alongside testimonials.
+export const clients = [];
+
+export const faqs = [];
+
+// Contact form options.
+export const inquiry = {};
