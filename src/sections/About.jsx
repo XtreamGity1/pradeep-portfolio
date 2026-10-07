@@ -10,8 +10,8 @@ function formatStat({ value, suffix, separator }) {
   return `${separator ? number.replace(/,/g, separator) : number}${suffix}`;
 }
 
-function Portrait({ className = '' }) {
-  const { src, alt, width, height } = aboutDetails.portrait;
+function Still({ className = '' }) {
+  const { src, alt, width, height, position, caption } = aboutDetails.image;
   return (
     <figure className={`relative overflow-hidden rounded-2xl border border-line bg-surface ${className}`}>
       {/* Width/height + aspect ratio reserve the box before the lazy image arrives (no layout shift).
@@ -23,10 +23,10 @@ function Portrait({ className = '' }) {
         height={height}
         loading="lazy"
         decoding="async"
-        className="block aspect-[4/5] h-auto w-full object-cover sm:aspect-[16/10] lg:aspect-[4/5]"
+        className={`block aspect-[4/5] h-auto w-full object-cover sm:aspect-[16/10] lg:aspect-[4/5] ${position}`}
       />
       <figcaption className="absolute bottom-4 left-4">
-        <Pill tone="glass">{profile.name}</Pill>
+        <Pill tone="glass">{caption}</Pill>
       </figcaption>
     </figure>
   );
@@ -53,7 +53,7 @@ export default function About() {
       <SectionHeading eyebrow="About" title="Editing is invisible" accent="until it isn't." />
 
       <div className="grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-16">
-        <Portrait className="lg:col-span-5" />
+        <Still className="lg:col-span-5" />
 
         <div className="lg:col-span-7">
           {/* The animated copy is split into words; expose it once as a plain paragraph instead. */}

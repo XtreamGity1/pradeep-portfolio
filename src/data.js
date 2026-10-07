@@ -86,14 +86,17 @@ export const stats = [
   { value: 8, suffix: '', label: 'Tools in the kit' },
 ];
 
-// About section: portrait, "how I cut" principles and platform row.
+// About section: a still from the reel, "how I cut" principles and platform row.
 export const aboutDetails = {
-  // PLACEHOLDER photo — swap for your own (e.g. '/portrait.jpg' in /public) and keep the alt accurate.
-  portrait: {
-    src: 'https://picsum.photos/seed/editor-portrait/800/1000',
-    alt: `Portrait of ${profile.name} at his editing desk`,
-    width: 800,
-    height: 1000,
+  // Still from the reel's long-form segment (media-src/Hero.MP4 at 0:36.9, letterbox cropped).
+  // `position` keeps her face in frame when the 20:9 still is cropped to portrait.
+  image: {
+    src: '/media/reel/about-podcast.jpg',
+    alt: 'A podcast host in headphones smiling at a red microphone in a sound-treated studio',
+    width: 1920,
+    height: 864,
+    position: 'object-[40%_50%]',
+    caption: 'From my 2026 showreel · Podcast',
   },
   principlesTitle: 'How I cut',
   platformsTitle: 'Platforms I edit for',
