@@ -1,7 +1,7 @@
 import { focusRing } from './styles';
 
 const variants = {
-  primary: 'bg-fg text-ink hover:bg-accent',
+  primary: 'border border-transparent bg-fg text-ink hover:bg-accent',
   ghost: 'border border-line text-fg hover:border-fg',
 };
 

@@ -13,6 +13,8 @@ const CTAS = [
   { label: 'View my work', href: '#work', variant: 'primary' },
   { label: 'Get in touch', href: '#contact', variant: 'ghost' },
 ];
+// Equal full-width buttons when stacked on phones; content-sized in a row from sm.
+const CTA_CLASS = 'w-full justify-center sm:w-auto';
 
 export default function Hero() {
   return (
@@ -73,10 +75,10 @@ export default function Hero() {
           className="mt-8 max-w-2xl justify-center text-base leading-relaxed text-muted sm:text-lg md:text-xl"
         />
 
-        <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
+        <div className="mt-10 flex w-full max-w-xs flex-col gap-4 sm:w-auto sm:max-w-none sm:flex-row">
           {CTAS.map(cta => (
             <Magnet key={cta.href} padding={60} magnetStrength={4}>
-              <Button href={cta.href} variant={cta.variant} className={focusRing}>
+              <Button href={cta.href} variant={cta.variant} className={CTA_CLASS}>
                 {cta.label}
               </Button>
             </Magnet>
@@ -86,7 +88,7 @@ export default function Hero() {
 
       <a
         href="#about"
-        className={`absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-3 rounded-md text-muted transition-colors hover:text-fg ${focusRing}`}
+        className={`absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 [@media(max-height:44rem)]:hidden flex-col items-center gap-3 rounded-md text-muted transition-colors hover:text-fg ${focusRing}`}
       >
         <Eyebrow as="span" tone="muted">
           Scroll
