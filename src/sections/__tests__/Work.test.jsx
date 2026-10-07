@@ -151,6 +151,18 @@ describe('Work', () => {
       expect(cardButton(edit)).toHaveFocus();
     });
 
+    test('Escape still closes it while the video player has focus', () => {
+      render(<Work />);
+      const dialog = openEdit(edit);
+      const video = dialog.querySelector('video');
+      // Native media controls handle Escape themselves and stop it bubbling to the document.
+      video.addEventListener('keydown', e => e.stopPropagation());
+      video.focus();
+      fireEvent.keyDown(video, { key: 'Escape' });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(cardButton(edit)).toHaveFocus();
+    });
+
     test('the close button closes it', () => {
       render(<Work />);
       const dialog = openEdit(edit);

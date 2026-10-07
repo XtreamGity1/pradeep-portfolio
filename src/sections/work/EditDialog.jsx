@@ -95,8 +95,9 @@ export default function EditDialog({ edit, prev, next, onSelect, onClose }) {
         first.focus();
       }
     };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
+    // Capture phase: a focused <video>'s native controls swallow Escape before it would bubble up.
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => document.removeEventListener('keydown', onKeyDown, true);
   }, []);
 
   // Browsing to another edit starts it from the top.

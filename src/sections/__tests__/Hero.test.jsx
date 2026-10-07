@@ -208,6 +208,17 @@ describe('Hero', () => {
       expect(document.querySelector(`video[src="${showreel.src}"]`)).toBeNull();
     });
 
+    test('Escape still closes it while the reel player has focus', async () => {
+      render(<Hero />);
+      const { trigger, dialog } = openShowreel();
+      const video = dialog.querySelector('video');
+      // Native media controls handle Escape themselves and stop it bubbling to the document.
+      video.addEventListener('keydown', e => e.stopPropagation());
+      fireEvent.keyDown(video, { key: 'Escape' });
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    });
+
     test('the close button closes it', async () => {
       render(<Hero />);
       const { dialog, trigger } = openShowreel();

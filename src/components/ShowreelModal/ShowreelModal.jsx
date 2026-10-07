@@ -58,10 +58,11 @@ export default function ShowreelModal({ open, reel, onClose, returnFocusRef }) {
     const onFocusIn = e => {
       if (dialogRef.current && !dialogRef.current.contains(e.target)) closeRef.current?.focus();
     };
-    document.addEventListener('keydown', onKeyDown);
+    // Capture phase: a focused <video>'s native controls swallow Escape before it would bubble up.
+    document.addEventListener('keydown', onKeyDown, true);
     document.addEventListener('focusin', onFocusIn);
     return () => {
-      document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('keydown', onKeyDown, true);
       document.removeEventListener('focusin', onFocusIn);
       // The player stays mounted for the exit animation, so silence it right away.
       video?.pause();
