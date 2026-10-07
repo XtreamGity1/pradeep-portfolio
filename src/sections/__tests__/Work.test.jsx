@@ -1,17 +1,19 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import Work from '../Work';
-import { projects, workCta } from '../../data';
+import { edits, reelChapters, showreel, workCta } from '../../data';
 
-const categories = [...new Set(projects.map(p => p.category))];
+const groups = [...new Set(edits.map(e => e.group))];
+const chapterOf = edit => reelChapters.find(c => c.id === edit.id);
 
-const cardButton = project => screen.getByRole('button', { name: project.title });
-const projectHeadings = () => screen.queryAllByRole('heading', { level: 3 });
+const cardButton = edit => screen.getByRole('button', { name: edit.title });
+const editHeadings = () => screen.queryAllByRole('heading', { level: 3 });
+const filterGroup = () => screen.getByRole('group', { name: 'Filter edits by technique' });
 
-function openProject(project) {
-  const button = cardButton(project);
+function openEdit(edit) {
+  const button = cardButton(edit);
   button.focus();
   fireEvent.click(button);
-  return screen.getByRole('dialog', { name: project.title });
+  return screen.getByRole('dialog', { name: edit.title });
 }
 
 describe('Work', () => {
@@ -25,34 +27,29 @@ describe('Work', () => {
     expect(screen.getByRole('heading', { level: 2, name: /edits that\s*move the needle\./i })).toBeInTheDocument();
   });
 
-  test('renders one card per project with its info visible without hover', () => {
-    render(<Work />);
-    const list = screen.getByRole('list', { name: 'Projects' });
-    expect(projectHeadings()).toHaveLength(projects.length);
+  test('every edit is a segment of the reel', () => {
+    for (const edit of edits) expect(chapterOf(edit), edit.id).toBeDefined();
+  });
 
-    for (const project of projects) {
-      const item = cardButton(project).closest('li');
+  test('renders one card per edit with its title, group, summary and still', () => {
+    render(<Work />);
+    const list = screen.getByRole('list', { name: 'Edits' });
+    expect(editHeadings()).toHaveLength(edits.length);
+
+    for (const edit of edits) {
+      const item = cardButton(edit).closest('li');
       expect(list).toContainElement(item);
       const card = within(item);
-      expect(card.getByRole('heading', { level: 3, name: project.title })).toBeInTheDocument();
-      expect(card.getByText(project.type)).toBeInTheDocument();
-      expect(card.getByText(project.focus)).toBeInTheDocument();
-      expect(card.getAllByText(new RegExp(project.format)).length).toBeGreaterThan(0);
-      expect(item.querySelector('img')).toHaveAttribute('src', project.image);
+      expect(card.getByRole('heading', { level: 3, name: edit.title })).toBeInTheDocument();
+      expect(card.getByText(edit.group)).toBeInTheDocument();
+      expect(card.getByText(edit.summary)).toBeInTheDocument();
+      expect(item.querySelector('img')).toHaveAttribute('src', edit.image);
     }
   });
 
-  test('cards are real buttons that open a case-study dialog', () => {
+  test('cards are real buttons that open a dialog', () => {
     render(<Work />);
-    for (const project of projects) {
-      expect(cardButton(project)).toHaveAttribute('aria-haspopup', 'dialog');
-    }
-  });
-
-  test('every project is honestly labelled with a project type', () => {
-    for (const project of projects) {
-      expect(['Personal', 'Spec', 'Collab', 'Practice']).toContain(project.type);
-    }
+    for (const edit of edits) expect(cardButton(edit)).toHaveAttribute('aria-haspopup', 'dialog');
   });
 
   test('ends the grid with a call to action for the next project', () => {
@@ -65,104 +62,115 @@ describe('Work', () => {
     expect(screen.queryByText(/not optimized for mobile/i)).not.toBeInTheDocument();
   });
 
-  describe('format filter', () => {
-    test('offers All plus one toggle per format derived from the projects', () => {
+  describe('technique filter', () => {
+    test('offers All plus one toggle per group derived from the edits', () => {
       render(<Work />);
-      const group = screen.getByRole('group', { name: /filter projects by format/i });
-      const buttons = within(group).getAllByRole('button');
-      expect(buttons.map(b => b.textContent.replace(/\d+$/, ''))).toEqual(['All', ...categories]);
-      expect(within(group).getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
-      for (const category of categories) {
-        expect(within(group).getByRole('button', { name: category })).toHaveAttribute('aria-pressed', 'false');
+      const buttons = within(filterGroup()).getAllByRole('button');
+      expect(buttons.map(b => b.textContent.replace(/\d+$/, ''))).toEqual(['All', ...groups]);
+      expect(within(filterGroup()).getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
+      for (const group of groups) {
+        expect(within(filterGroup()).getByRole('button', { name: group })).toHaveAttribute('aria-pressed', 'false');
       }
     });
 
     test('announces the result count in a live region', () => {
       render(<Work />);
-      expect(screen.getByRole('status')).toHaveTextContent(`Showing all ${projects.length} projects`);
+      expect(screen.getByRole('status')).toHaveTextContent(`Showing all ${edits.length} edits`);
     });
 
-    test.each(categories)('filtering by %s shows only matching projects', category => {
+    test.each(groups)('filtering by %s shows only matching edits', group => {
       render(<Work />);
-      const group = screen.getByRole('group', { name: /filter projects by format/i });
-      fireEvent.click(within(group).getByRole('button', { name: category }));
+      fireEvent.click(within(filterGroup()).getByRole('button', { name: group }));
 
-      const matching = projects.filter(p => p.category === category);
-      expect(within(group).getByRole('button', { name: category })).toHaveAttribute('aria-pressed', 'true');
-      expect(within(group).getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'false');
-      expect(projectHeadings().map(h => h.textContent)).toEqual(matching.map(p => p.title));
-      const noun = matching.length === 1 ? 'project' : 'projects';
-      expect(screen.getByRole('status')).toHaveTextContent(`Showing ${matching.length} ${category} ${noun}`);
+      const matching = edits.filter(e => e.group === group);
+      expect(within(filterGroup()).getByRole('button', { name: group })).toHaveAttribute('aria-pressed', 'true');
+      expect(within(filterGroup()).getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'false');
+      expect(editHeadings().map(h => h.textContent)).toEqual(matching.map(e => e.title));
+      const noun = matching.length === 1 ? 'edit' : 'edits';
+      expect(screen.getByRole('status')).toHaveTextContent(`Showing ${matching.length} ${group} ${noun}`);
 
-      fireEvent.click(within(group).getByRole('button', { name: 'All' }));
-      expect(projectHeadings()).toHaveLength(projects.length);
+      fireEvent.click(within(filterGroup()).getByRole('button', { name: 'All' }));
+      expect(editHeadings()).toHaveLength(edits.length);
     });
   });
 
-  describe('case-study dialog', () => {
-    const project = projects[0];
+  describe('edit dialog', () => {
+    const edit = edits[0];
 
-    test('opens a labelled modal dialog with the full story', () => {
+    test('opens a labelled modal dialog that explains the technique', () => {
       render(<Work />);
-      const dialog = openProject(project);
+      const dialog = openEdit(edit);
       const d = within(dialog);
 
       expect(dialog).toHaveAttribute('aria-modal', 'true');
-      expect(d.getByRole('heading', { level: 2, name: project.title })).toBeInTheDocument();
-      for (const name of ['The goal', 'Raw material', 'What I did', 'What I learned', 'Next time', 'Tools']) {
+      expect(d.getByRole('heading', { level: 2, name: edit.title })).toBeInTheDocument();
+      for (const name of ['In this clip', 'How it’s done', 'Why it matters']) {
         expect(d.getByRole('heading', { level: 3, name })).toBeInTheDocument();
       }
-      expect(d.getByText(project.goal)).toBeInTheDocument();
-      expect(d.getByText(project.footage)).toBeInTheDocument();
-      expect(d.getByText(project.learned)).toBeInTheDocument();
-      expect(d.getByText(project.next)).toBeInTheDocument();
-      expect(d.getByText(project.runtime)).toBeInTheDocument();
-      for (const step of project.approach) {
+      expect(d.getByText(edit.shows)).toBeInTheDocument();
+      expect(d.getByText(edit.why)).toBeInTheDocument();
+      for (const step of edit.how) {
         expect(d.getByText(step.label)).toBeInTheDocument();
         expect(d.getByText(step.body)).toBeInTheDocument();
       }
-      for (const tool of project.tools) expect(d.getByText(tool)).toBeInTheDocument();
-      expect(d.getByRole('img', { name: new RegExp(project.title) })).toHaveAttribute('src', project.image);
+      expect(d.getByText(edit.group, { selector: 'dd' })).toBeInTheDocument();
+      expect(d.getByText(showreel.title)).toBeInTheDocument();
+    });
+
+    test('plays that segment of the reel with sound and controls', () => {
+      render(<Work />);
+      const dialog = openEdit(edit);
+      const { start, end } = chapterOf(edit);
+      const video = dialog.querySelector('video');
+
+      expect(video).toHaveAttribute('src', `${showreel.src}#t=${start},${end}`);
+      expect(video).toHaveAttribute('poster', edit.image);
+      expect(video).toHaveAttribute('controls');
+      expect(video).toHaveAttribute('playsinline');
+      expect(video.muted).toBe(false);
+      expect(video).toHaveAccessibleName(`${edit.title} clip from the showreel`);
+      // Clip length, rounded to a tenth of a second.
+      expect(within(dialog).getByText(`${(end - start).toFixed(1)} s`)).toBeInTheDocument();
     });
 
     test('locks page scroll and moves focus into the dialog', () => {
       render(<Work />);
-      const dialog = openProject(project);
+      const dialog = openEdit(edit);
       expect(document.body.style.overflow).toBe('hidden');
-      expect(within(dialog).getByRole('button', { name: 'Close case study' })).toHaveFocus();
+      expect(within(dialog).getByRole('button', { name: 'Close' })).toHaveFocus();
     });
 
     test('Escape closes it, unlocks scroll and returns focus to the card', () => {
       render(<Work />);
-      openProject(project);
+      openEdit(edit);
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(document.body.style.overflow).toBe('');
-      expect(cardButton(project)).toHaveFocus();
+      expect(cardButton(edit)).toHaveFocus();
     });
 
     test('the close button closes it', () => {
       render(<Work />);
-      const dialog = openProject(project);
-      fireEvent.click(within(dialog).getByRole('button', { name: 'Close case study' }));
+      const dialog = openEdit(edit);
+      fireEvent.click(within(dialog).getByRole('button', { name: 'Close' }));
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-      expect(cardButton(project)).toHaveFocus();
+      expect(cardButton(edit)).toHaveFocus();
     });
 
     test('clicking the backdrop closes it, clicking inside does not', () => {
       render(<Work />);
-      const dialog = openProject(project);
-      fireEvent.click(within(dialog).getByText(project.goal));
+      const dialog = openEdit(edit);
+      fireEvent.click(within(dialog).getByText(edit.why));
       expect(screen.getByRole('dialog')).toBeInTheDocument();
-      fireEvent.click(screen.getByTestId('project-dialog-backdrop'));
+      fireEvent.click(screen.getByTestId('edit-dialog-backdrop'));
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
 
     test('keeps Tab focus inside the dialog', () => {
       render(<Work />);
-      const dialog = openProject(project);
-      const close = within(dialog).getByRole('button', { name: 'Close case study' });
-      const focusables = dialog.querySelectorAll('button, a[href], iframe');
+      const dialog = openEdit(edit);
+      const close = within(dialog).getByRole('button', { name: 'Close' });
+      const focusables = dialog.querySelectorAll('button, a[href], video');
       const last = focusables[focusables.length - 1];
 
       fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
@@ -171,35 +179,25 @@ describe('Work', () => {
       expect(close).toHaveFocus();
     });
 
-    test('browses to the next and previous case study within the current filter', () => {
+    test('browses to the next and previous edit within the current filter', () => {
       render(<Work />);
-      const inCategory = c => projects.filter(p => p.category === c);
-      const category = categories.find(c => inCategory(c).length >= 2);
-      const matching = inCategory(category);
-      fireEvent.click(screen.getByRole('button', { name: category }));
-      openProject(matching[0]);
+      const inGroup = g => edits.filter(e => e.group === g);
+      const group = groups.find(g => inGroup(g).length >= 2);
+      const matching = inGroup(group);
+      fireEvent.click(within(filterGroup()).getByRole('button', { name: group }));
+      openEdit(matching[0]);
 
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^next.*${matching[1].title}`, 'i') }));
-      expect(screen.getByRole('dialog', { name: matching[1].title })).toBeInTheDocument();
+      const dialog = screen.getByRole('dialog', { name: matching[1].title });
+      const { start, end } = chapterOf(matching[1]);
+      expect(dialog.querySelector('video')).toHaveAttribute('src', `${showreel.src}#t=${start},${end}`);
       fireEvent.click(screen.getByRole('button', { name: /^previous/i }));
       expect(screen.getByRole('dialog', { name: matching[0].title })).toBeInTheDocument();
 
-      // Closing returns focus to the card of the project being viewed.
+      // Closing returns focus to the card of the edit being viewed.
       fireEvent.click(screen.getByRole('button', { name: /^next/i }));
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(cardButton(matching[1])).toHaveFocus();
-    });
-
-    test('plays an embed instead of the poster when the project has one', () => {
-      const original = project.embed;
-      project.embed = 'https://player.vimeo.com/video/76979871';
-      try {
-        render(<Work />);
-        const dialog = openProject(project);
-        expect(within(dialog).getByTitle(`${project.title} video`)).toHaveAttribute('src', project.embed);
-      } finally {
-        project.embed = original;
-      }
     });
   });
 });

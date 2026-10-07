@@ -73,8 +73,8 @@ test.describe('header layout', () => {
     }
     expect(Math.max(...centers) - Math.min(...centers), 'links share one row').toBeLessThan(4);
     const headerBox = await header.boundingBox();
-    // 80px bar + 1px bottom border.
-    expect(headerBox.height).toBeLessThanOrEqual(81);
+    // 64px bar + 1px bottom border (56px on phones).
+    expect(headerBox.height).toBeLessThanOrEqual(isNarrow(page) ? 57 : 65);
   });
 });
 

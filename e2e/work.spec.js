@@ -1,14 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { projects } from '../src/data.js';
+import { edits, reelChapters, showreel } from '../src/data.js';
 
-const categories = [...new Set(projects.map(p => p.category))];
-const vertical = projects.find(p => p.orientation === 'vertical');
+const groups = [...new Set(edits.map(e => e.group))];
 
 const work = page => page.locator('#work');
-const filterGroup = page => page.getByRole('group', { name: /filter projects by format/i });
-const cardButton = (page, project) => work(page).getByRole('button', { name: project.title, exact: true });
+const filterGroup = page => page.getByRole('group', { name: 'Filter edits by technique' });
+const cardButton = (page, edit) => work(page).getByRole('button', { name: edit.title, exact: true });
 // `filter({ has })` resolves relative to each matched item, so it must not re-scope to #work.
-const hasCard = (page, project) => page.getByRole('button', { name: project.title, exact: true });
+const hasCard = (page, edit) => page.getByRole('button', { name: edit.title, exact: true });
 
 async function expectNoHorizontalOverflow(page) {
   const { scrollWidth, innerWidth } = await page.evaluate(() => ({
@@ -23,32 +22,36 @@ test.beforeEach(async ({ page }) => {
   await work(page).scrollIntoViewIfNeeded();
 });
 
-test('cards show title, type and focus without hover', async ({ page }) => {
-  for (const project of projects) {
-    const item = work(page).getByRole('listitem').filter({ has: hasCard(page, project) });
-    await expect(item.getByRole('heading', { level: 3, name: project.title })).toBeVisible();
-    await expect(item.getByText(project.type, { exact: true })).toBeVisible();
-    await expect(item.getByText(project.focus, { exact: true })).toBeVisible();
+test('cards show title, technique and summary without hover', async ({ page }) => {
+  for (const edit of edits) {
+    const item = work(page).getByRole('listitem').filter({ has: hasCard(page, edit) });
+    await expect(item.getByRole('heading', { level: 3, name: edit.title })).toBeVisible();
+    await expect(item.getByText(edit.group, { exact: true })).toBeVisible();
+    await expect(item.getByText(edit.summary, { exact: true })).toBeVisible();
   }
 });
 
-test('vertical projects get tall cards and the grid has no gaps', async ({ page }) => {
-  const box = await work(page).getByRole('listitem').filter({ has: hasCard(page, vertical) }).boundingBox();
-  expect(box.height).toBeGreaterThan(box.width);
+test('all cards are landscape and the grid has no gaps under any filter', async ({ page }) => {
+  const list = work(page).getByRole('list', { name: 'Edits' });
+  for (const label of ['All', ...groups]) {
+    await filterGroup(page).getByRole('button', { name: label }).click();
+    for (const item of await list.getByRole('listitem').all()) {
+      const box = await item.boundingBox();
+      expect(box.width, label).toBeGreaterThan(box.height);
+    }
 
-  // Every row of the grid is filled edge to edge: the cells' total area equals the grid's area.
-  const { filled, total } = await work(page)
-    .getByRole('list', { name: 'Projects' })
-    .evaluate(list => {
-      const gap = parseFloat(getComputedStyle(list).rowGap);
-      const rect = list.getBoundingClientRect();
-      const filled = [...list.children].reduce((sum, li) => {
+    // Every row of the grid is filled edge to edge: the cells' total area equals the grid's area.
+    const { filled, total } = await list.evaluate(el => {
+      const gap = parseFloat(getComputedStyle(el).rowGap);
+      const rect = el.getBoundingClientRect();
+      const filled = [...el.children].reduce((sum, li) => {
         const r = li.getBoundingClientRect();
         return sum + (r.width + gap) * (r.height + gap);
       }, 0);
       return { filled, total: (rect.width + gap) * (rect.height + gap) };
     });
-  expect(Math.abs(filled - total) / total).toBeLessThan(0.01);
+    expect(Math.abs(filled - total) / total, label).toBeLessThan(0.01);
+  }
 });
 
 test('filter toggles are tappable and filter the grid', async ({ page }) => {
@@ -58,8 +61,8 @@ test('filter toggles are tappable and filter the grid', async ({ page }) => {
     expect(box.height, 'tap target at least 44px tall').toBeGreaterThanOrEqual(44);
   }
 
-  const category = categories[categories.length - 1];
-  const matching = projects.filter(p => p.category === category);
+  const category = groups[groups.length - 1];
+  const matching = edits.filter(e => e.group === category);
   await group.getByRole('button', { name: category }).click();
   await expect(group.getByRole('button', { name: category })).toHaveAttribute('aria-pressed', 'true');
   await expect(group.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'false');
@@ -72,24 +75,24 @@ test('filters are keyboard operable', async ({ page }) => {
   const group = filterGroup(page);
   await group.getByRole('button', { name: 'All' }).focus();
   await page.keyboard.press('Tab');
-  await expect(group.getByRole('button', { name: categories[0] })).toBeFocused();
+  await expect(group.getByRole('button', { name: groups[0] })).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(group.getByRole('button', { name: categories[0] })).toHaveAttribute('aria-pressed', 'true');
+  await expect(group.getByRole('button', { name: groups[0] })).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Shift+Tab');
   await page.keyboard.press('Space');
   await expect(group.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
-  await expect(work(page).getByRole('heading', { level: 3 })).toHaveCount(projects.length);
+  await expect(work(page).getByRole('heading', { level: 3 })).toHaveCount(edits.length);
 });
 
-test('keyboard: open a case study, stay trapped inside, Escape returns to the card', async ({ page }) => {
-  const project = projects[0];
-  const card = cardButton(page, project);
+test('keyboard: open an edit, stay trapped inside, Escape returns to the card', async ({ page }) => {
+  const edit = edits[0];
+  const card = cardButton(page, edit);
   await card.focus();
   await page.keyboard.press('Enter');
 
-  const dialog = page.getByRole('dialog', { name: project.title });
+  const dialog = page.getByRole('dialog', { name: edit.title });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('button', { name: 'Close case study' })).toBeFocused();
+  await expect(dialog.getByRole('button', { name: 'Close', exact: true })).toBeFocused();
   expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).toBe('hidden');
 
   // Tab through more stops than the dialog has: focus never leaves it.
@@ -104,10 +107,10 @@ test('keyboard: open a case study, stay trapped inside, Escape returns to the ca
   expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).not.toBe('hidden');
 });
 
-test('tap a card, browse to the next case study, close from the backdrop', async ({ page }) => {
-  await cardButton(page, projects[0]).click();
+test('tap a card, browse to the next edit and its clip, close from the backdrop', async ({ page }) => {
+  await cardButton(page, edits[0]).click();
   const dialog = page.getByRole('dialog');
-  await expect(dialog).toHaveAccessibleName(projects[0].title);
+  await expect(dialog).toHaveAccessibleName(edits[0].title);
   await expectNoHorizontalOverflow(page);
 
   // The panel slides up as it opens; measure once it has settled.
@@ -120,14 +123,16 @@ test('tap a card, browse to the next case study, close from the backdrop', async
   expect(panel.x).toBeGreaterThanOrEqual(0);
   expect(panel.x + panel.width).toBeLessThanOrEqual(viewport.width);
 
-  const closeBox = await dialog.getByRole('button', { name: 'Close case study' }).boundingBox();
+  const closeBox = await dialog.getByRole('button', { name: 'Close', exact: true }).boundingBox();
   // Sub-pixel tolerance: a fractional transform can report 43.99999px for a 44px box.
   expect(closeBox.width).toBeGreaterThanOrEqual(43.5);
   expect(closeBox.height).toBeGreaterThanOrEqual(43.5);
 
   await dialog.getByRole('button', { name: /^next/i }).click();
-  await expect(dialog).toHaveAccessibleName(projects[1].title);
-  await expect(dialog.getByRole('heading', { level: 3, name: 'What I did' })).toBeAttached();
+  await expect(dialog).toHaveAccessibleName(edits[1].title);
+  await expect(dialog.getByRole('heading', { level: 3, name: 'How it’s done' })).toBeAttached();
+  const { start, end } = reelChapters.find(c => c.id === edits[1].id);
+  await expect(dialog.locator('video')).toHaveAttribute('src', `${showreel.src}#t=${start},${end}`);
 
   // The backdrop shows above the sheet on phones and around the panel on larger screens.
   await page.mouse.click(viewport.width / 2, 8);
@@ -136,7 +141,7 @@ test('tap a card, browse to the next case study, close from the backdrop', async
 
 test('reduced motion: cards do not tilt on hover', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const card = cardButton(page, projects[0]);
+  const card = cardButton(page, edits[0]);
   const box = await card.locator('xpath=ancestor::figure').boundingBox();
   await page.mouse.move(box.x + 10, box.y + 10);
   await page.mouse.move(box.x + 20, box.y + 20, { steps: 5 });

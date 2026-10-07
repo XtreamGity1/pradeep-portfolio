@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import Hero from '../Hero';
-import { heroVideo, profile, showreel } from '../../data';
+import { heroVideo, profile, reelChapters, showreel } from '../../data';
 
 function mockReducedMotion() {
   const original = window.matchMedia;
@@ -84,6 +84,41 @@ describe('Hero', () => {
     const still = container.querySelector(`img[src="${heroVideo.poster}"]`);
     expect(still).not.toBeNull();
     expect(still).toHaveAttribute('alt', '');
+  });
+
+  describe('now-showing label', () => {
+    const label = container => container.querySelector('[data-testid="hero-now-showing"]');
+    // Move the background loop's playhead to `time` seconds (loop time, not reel time).
+    const seek = (video, time) => {
+      Object.defineProperty(video, 'currentTime', { configurable: true, value: time });
+      fireEvent.timeUpdate(video);
+    };
+
+    test('names the technique the background video is showing, in sync with its time', () => {
+      const { container } = render(<Hero />);
+      const video = container.querySelector('video');
+      expect(label(container).closest('[aria-hidden="true"]')).not.toBeNull();
+
+      for (const chapter of reelChapters.filter(c => c.start >= heroVideo.offset)) {
+        seek(video, (chapter.start + chapter.end) / 2 - heroVideo.offset);
+        expect(label(container)).toHaveTextContent(`Now showing · ${chapter.label}`);
+      }
+    });
+
+    test('hides between chapters', () => {
+      const { container } = render(<Hero />);
+      const video = container.querySelector('video');
+      const gap = reelChapters.findIndex((c, i) => i > 0 && c.start > reelChapters[i - 1].end);
+      seek(video, (reelChapters[gap - 1].end + reelChapters[gap].start) / 2 - heroVideo.offset);
+      expect(label(container)).toBeNull();
+    });
+
+    test('names the poster’s technique when motion is reduced', () => {
+      const restore = mockReducedMotion();
+      const { container } = render(<Hero />);
+      restore();
+      expect(label(container)).toHaveTextContent('Now showing · Text in background');
+    });
   });
 
   describe('showreel', () => {

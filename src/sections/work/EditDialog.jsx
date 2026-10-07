@@ -1,32 +1,29 @@
 import { useEffect, useEffectEvent, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
-import { Eyebrow, Pill } from '../../components/ui';
+import { Eyebrow } from '../../components/ui';
 import useScrollLock from '../../hooks/useScrollLock';
+import { reelChapters, showreel } from '../../data';
 
-const FOCUSABLE = 'a[href], button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE = 'a[href], button:not([disabled]), video[controls], [tabindex]:not([tabindex="-1"])';
 const EASE = [0.22, 1, 0.36, 1];
 // Focus outline drawn inside the element, so it is not clipped by the panel's rounded overflow.
 const insetFocus = 'focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent';
 
-// Poster frame, or the real video when the project has an `embed` URL.
-function Media({ project }) {
-  const frame = `rounded-2xl border border-line bg-ink ${
-    project.orientation === 'vertical' ? 'mx-auto aspect-[9/16] w-full max-w-64 md:max-w-none' : 'aspect-video w-full'
-  }`;
-  if (project.embed) {
-    return (
-      <iframe
-        src={project.embed}
-        title={`${project.title} video`}
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowFullScreen
-        loading="lazy"
-        className={frame}
-      />
-    );
-  }
-  return <img src={project.image} alt={`${project.title} — poster frame`} className={`${frame} object-cover`} />;
+// That segment of the reel, with sound. The reel is 16:9 with its letterbox baked in.
+function Clip({ edit, chapter }) {
+  return (
+    <video
+      key={edit.id}
+      src={`${showreel.src}#t=${chapter.start},${chapter.end}`}
+      poster={edit.image}
+      aria-label={`${edit.title} clip from the showreel`}
+      controls
+      playsInline
+      preload="metadata"
+      className="aspect-video w-full rounded-2xl border border-line bg-ink"
+    />
+  );
 }
 
 function Block({ title, className = '', children }) {
@@ -40,33 +37,33 @@ function Block({ title, className = '', children }) {
   );
 }
 
-const facts = project => [
-  { label: 'Project', value: project.type },
-  { label: 'Runtime', value: project.runtime },
-  { label: 'Focus', value: project.focus, wide: true },
+const facts = (edit, chapter) => [
+  { label: 'Technique', value: edit.group },
+  { label: 'Clip length', value: `${(chapter.end - chapter.start).toFixed(1)} s` },
+  { label: 'From', value: showreel.title, wide: true },
 ];
 
-// Previous / next case study, so visitors can browse without closing the dialog.
-function BrowseButton({ direction, project, onSelect }) {
+// Previous / next edit, so visitors can browse without closing the dialog.
+function BrowseButton({ direction, edit, onSelect }) {
   const isNext = direction === 'next';
   return (
     <button
       type="button"
-      onClick={() => onSelect(project)}
+      onClick={() => onSelect(edit)}
       className={`min-h-16 min-w-0 px-5 py-3 transition-colors hover:bg-ink/40 sm:px-8 ${isNext ? 'text-right' : 'text-left'} ${insetFocus}`}
     >
       <span className="block text-xs text-muted">
         {isNext ? 'Next' : 'Previous'}
         <span aria-hidden="true">{isNext ? ' →' : ' ←'}</span>
       </span>
-      <span className="block truncate text-sm font-medium text-fg"> {project.title}</span>
+      <span className="block truncate text-sm font-medium text-fg"> {edit.title}</span>
     </button>
   );
 }
 
-// Accessible case-study modal: focus moves in and is trapped, Escape / close button / backdrop close it,
+// Accessible modal for one technique: focus moves in and is trapped, Escape / close button / backdrop close it,
 // and page scroll is locked while open. The caller returns focus to the card on close.
-export default function ProjectDialog({ project, prev, next, onSelect, onClose }) {
+export default function EditDialog({ edit, prev, next, onSelect, onClose }) {
   const panelRef = useRef(null);
   const scrollRef = useRef(null);
   const closeRef = useRef(null);
@@ -102,17 +99,17 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  // Browsing to another project starts it from the top.
+  // Browsing to another edit starts it from the top.
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
-  }, [project]);
+  }, [edit]);
 
-  const vertical = project.orientation === 'vertical';
+  const chapter = reelChapters.find(c => c.id === edit.id);
 
   return createPortal(
     <div className="fixed inset-0 z-60 flex items-end justify-center md:items-center md:p-6">
       <motion.div
-        data-testid="project-dialog-backdrop"
+        data-testid="edit-dialog-backdrop"
         aria-hidden="true"
         onClick={onClose}
         initial={{ opacity: 0 }}
@@ -132,12 +129,12 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
       >
         <div className="flex items-center justify-between gap-4 border-b border-line py-2 pr-2 pl-5 sm:pl-8">
           <Eyebrow tone="muted" className="truncate">
-            {project.type} · {project.category}
+            {edit.group} · {showreel.title}
           </Eyebrow>
           <button
             ref={closeRef}
             type="button"
-            aria-label="Close case study"
+            aria-label="Close"
             onClick={onClose}
             className={`grid size-11 shrink-0 place-items-center rounded-full text-2xl leading-none text-muted transition-colors hover:bg-ink/60 hover:text-fg ${insetFocus}`}
           >
@@ -146,19 +143,17 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
         </div>
 
         <div ref={scrollRef} className="overflow-y-auto overscroll-contain">
-          <div
-            className={`grid gap-8 p-5 sm:p-8 ${vertical ? 'md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] md:items-start lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]' : ''}`}
-          >
-            <Media project={project} />
+          <div className="grid gap-8 p-5 sm:p-8">
+            <Clip edit={edit} chapter={chapter} />
 
             <div className="@container min-w-0">
               <h2 id={titleId} className="text-3xl font-semibold tracking-tight text-fg md:text-4xl">
-                {project.title}
+                {edit.title}
               </h2>
-              <p className="mt-2 text-muted">{project.format}</p>
+              <p className="mt-2 text-muted">{edit.summary}</p>
 
               <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line @lg:grid-cols-3">
-                {facts(project).map(fact => (
+                {facts(edit, chapter).map(fact => (
                   <div key={fact.label} className={`bg-surface p-4 ${fact.wide ? 'col-span-2 @lg:col-span-1' : ''}`}>
                     <dt className="text-xs text-muted">{fact.label}</dt>
                     <dd className="mt-1 font-medium text-fg">{fact.value}</dd>
@@ -167,15 +162,12 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
               </dl>
 
               <div className="mt-8 grid gap-8 leading-relaxed @2xl:grid-cols-2">
-                <Block title="The goal">
-                  <p className="text-fg/90">{project.goal}</p>
+                <Block title="In this clip" className="@2xl:col-span-2">
+                  <p className="text-fg/90">{edit.shows}</p>
                 </Block>
-                <Block title="Raw material">
-                  <p className="text-fg/90">{project.footage}</p>
-                </Block>
-                <Block title="What I did" className="@2xl:col-span-2">
-                  <dl className="grid gap-4 @xl:grid-cols-2">
-                    {project.approach.map(step => (
+                <Block title="How it’s done" className="@2xl:col-span-2">
+                  <dl className="grid gap-4 @xl:grid-cols-3">
+                    {edit.how.map(step => (
                       <div key={step.label} className="rounded-2xl border border-line bg-ink/40 p-4">
                         <dt className="font-semibold text-accent">{step.label}</dt>
                         <dd className="mt-1 text-sm text-fg/85">{step.body}</dd>
@@ -183,20 +175,8 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
                     ))}
                   </dl>
                 </Block>
-                <Block title="What I learned">
-                  <p className="text-fg/90">{project.learned}</p>
-                </Block>
-                <Block title="Next time">
-                  <p className="text-fg/90">{project.next}</p>
-                </Block>
-                <Block title="Tools" className="@2xl:col-span-2">
-                  <ul className="flex flex-wrap gap-2">
-                    {project.tools.map(tool => (
-                      <Pill as="li" key={tool}>
-                        {tool}
-                      </Pill>
-                    ))}
-                  </ul>
+                <Block title="Why it matters" className="@2xl:col-span-2">
+                  <p className="text-fg/90">{edit.why}</p>
                 </Block>
               </div>
             </div>
@@ -204,14 +184,14 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
         </div>
 
         {prev && next && (
-          <nav aria-label="More projects" className="grid shrink-0 grid-cols-2 divide-x divide-line border-t border-line">
-            <BrowseButton direction="prev" project={prev} onSelect={onSelect} />
-            <BrowseButton direction="next" project={next} onSelect={onSelect} />
+          <nav aria-label="More edits" className="grid shrink-0 grid-cols-2 divide-x divide-line border-t border-line">
+            <BrowseButton direction="prev" edit={prev} onSelect={onSelect} />
+            <BrowseButton direction="next" edit={next} onSelect={onSelect} />
           </nav>
         )}
         {/* Announces the new title when browsing with prev/next (focus stays on the button). */}
         <p aria-live="polite" className="sr-only">
-          {project.title}
+          {edit.title}
         </p>
       </motion.div>
     </div>,

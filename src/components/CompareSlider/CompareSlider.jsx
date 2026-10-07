@@ -19,8 +19,9 @@ const keySteps = {
 };
 
 // Before/after frame comparison with a draggable divider. `before` shows on the left, `after` on the
-// right. Works with mouse, touch (vertical swipes still scroll the page) and keyboard.
-export default function CompareSlider({ before, after, beforeLabel, afterLabel, initial = 50, step = 5, hint = true }) {
+// right. Works with mouse, touch (vertical swipes still scroll the page) and keyboard. `aspect` is the
+// frame's Tailwind aspect-ratio class.
+export default function CompareSlider({ before, after, beforeLabel, afterLabel, initial = 50, step = 5, hint = true, aspect = 'aspect-video' }) {
   const [value, setValue] = useState(initial);
   const [dragging, setDragging] = useState(false);
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
@@ -121,7 +122,7 @@ export default function CompareSlider({ before, after, beforeLabel, afterLabel, 
     <div
       ref={frameRef}
       data-compare-frame
-      className="relative aspect-video cursor-ew-resize touch-pan-y select-none"
+      className={`relative ${aspect} cursor-ew-resize touch-pan-y select-none`}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
