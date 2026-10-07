@@ -115,11 +115,32 @@ export const services = [
 // Pricing packages.
 export const packages = [];
 
+// `duration` is the timing hint; `provide` is what the client hands over at that step.
 export const process = [
-  { step: 'Brief', body: 'We align on audience, goals, references and the one feeling the video should leave.' },
-  { step: 'Rough cut', body: 'Story locked first. You get a structured cut within 72 hours of receiving footage.' },
-  { step: 'Polish', body: 'Color, sound, graphics and captions — refined over two included revision rounds.' },
-  { step: 'Deliver', body: 'Platform-ready exports, thumbnails-ready stills and a project file you own.' },
+  {
+    step: 'Brief',
+    duration: 'Day 1',
+    body: 'We align on audience, goals, references and the one feeling the video should leave.',
+    provide: 'Your channel or page link, 2–3 videos you love and the deadline.',
+  },
+  {
+    step: 'Rough cut',
+    duration: '72h',
+    body: 'Story locked first. You get a structured cut within 72 hours of receiving footage.',
+    provide: 'Raw footage via Drive or Dropbox, plus a script, outline or quick voice note.',
+  },
+  {
+    step: 'Polish',
+    duration: 'Up to 2 rounds',
+    body: 'Color, sound, graphics and captions — refined over up to two included revision rounds.',
+    provide: 'Timestamped notes on what to tighten, cut or keep.',
+  },
+  {
+    step: 'Deliver',
+    duration: 'Within a week',
+    body: 'Platform-ready exports, thumbnails-ready stills and a project file you own.',
+    provide: 'Your final OK — and where it is going live.',
+  },
 ];
 
 export const tools = [
@@ -133,25 +154,78 @@ export const tools = [
   'Frame.io',
 ];
 
+// PLACEHOLDER QUOTES — replace every entry with a real quote (and real name/role) before launch.
+// Leave the array empty to hide the testimonials section entirely.
 export const testimonials = [
   {
+    // PLACEHOLDER — replace with a real quote.
     quote:
-      'Alex took our retention from 38% to 55% in two months. Our edits finally feel like the channel we always pictured.',
-    name: 'Jordan Lee',
-    role: 'Creator, 2.1M subscribers',
+      'Alex re-cut my first ten videos and the difference was obvious — tighter intros, no dead air, and people actually stuck around to the end.',
+    name: 'Sam Patel',
+    role: 'Friend & small YouTube channel',
   },
   {
+    // PLACEHOLDER — replace with a real quote.
     quote:
-      'Fast, communicative and genuinely creative. The brand film became our best-performing asset of the year.',
-    name: 'Priya Nair',
-    role: 'Head of Marketing, Ritual Coffee Co.',
+      'He edited our student short in a week and found a better ending in the footage than the one we had scripted.',
+    name: 'Maya Chen',
+    role: 'Director, film school short',
+  },
+  {
+    // PLACEHOLDER — replace with a real quote.
+    quote:
+      'Quick replies, clear timelines and Reels that finally look like us. Easy to work with from the first message.',
+    name: 'Luis Ortega',
+    role: 'Owner, local café',
   },
 ];
 
-// Client names shown alongside testimonials.
+// No client logos/names yet — kept for when there are real ones to show.
 export const clients = [];
 
-export const faqs = [];
+// Questions a creator or small business asks before hiring a newer editor.
+export const faqs = [
+  {
+    question: 'Do you do a free test edit?',
+    answer:
+      'Yes — a free 60-second test edit, no strings. Send a few minutes of raw footage (or tick the test-edit box in the contact form) and judge the hook, pacing and style before you pay anything.',
+  },
+  {
+    question: 'Why work with a newer editor?',
+    answer:
+      'You get someone with time, hunger and current short-form instincts, at a rate that reflects where I am now. Fewer clients means your project gets real attention and replies within a day.',
+  },
+  {
+    question: 'How fast is turnaround?',
+    answer:
+      'Shorts and Reels come back within 48 hours. Long-form edits up to 20 minutes take about 4 days, with a first cut usually inside 72 hours. Bigger projects get a timeline agreed upfront — and I hit it.',
+  },
+  {
+    question: 'How many revisions do I get?',
+    answer:
+      'Two rounds on long-form and bundle videos, one on Shorts. Leave timestamped notes in Frame.io or a Google Doc and I’ll work through every one. If something still isn’t right after that, we’ll sort it.',
+  },
+  {
+    question: 'How do I send you footage?',
+    answer:
+      'Share a Google Drive, Dropbox or WeTransfer link with the original files — no need to compress. Add a script, outline or quick voice note on what matters most.',
+  },
+  {
+    question: 'What software do you edit in?',
+    answer:
+      'Premiere Pro and After Effects for most edits, DaVinci Resolve for color and CapCut when a trend needs speed. Happy to match your workflow if you already have one.',
+  },
+  {
+    question: 'Who owns the final video?',
+    answer:
+      'You do. Once it’s paid for, the exports and the project file are yours. I’ll only show it in my portfolio with your OK.',
+  },
+  {
+    question: 'What about music and copyright?',
+    answer:
+      'I only use properly licensed music and sound effects (or tracks you already license), so uploads don’t get claimed, muted or demonetised.',
+  },
+];
 
 // Contact form options.
 export const inquiry = {};
