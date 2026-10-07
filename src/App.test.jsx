@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import App from './App';
 import { navItems, profile } from './data';
 
-const SECTION_IDS = ['top', 'about', 'work', 'services', 'process', 'testimonials', 'contact'];
+const SECTION_IDS = ['top', 'about', 'work', 'craft', 'services', 'pricing', 'process', 'testimonials', 'faq', 'contact'];
 
 test('renders every section with its anchor id', () => {
   const { container } = render(<App />);
