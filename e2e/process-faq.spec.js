@@ -52,6 +52,19 @@ test.describe('process timeline', () => {
       await expect(step.getByText(/you provide/i)).toBeVisible();
     }
   });
+
+  test('on laptops the "You provide" boxes line up in one row at equal height', async ({ page }) => {
+    test.skip(!isWide(page), 'side-by-side layout only');
+    const list = page.getByRole('list', { name: /process/i });
+    await list.scrollIntoViewIfNeeded();
+    await page.evaluate(() => document.fonts.ready);
+    const boxes = await list.locator('dl').evaluateAll(els => els.map(el => el.getBoundingClientRect().toJSON()));
+    expect(boxes).toHaveLength(4);
+    for (const box of boxes.slice(1)) {
+      expect(Math.abs(box.top - boxes[0].top), 'boxes share a top edge').toBeLessThan(1);
+      expect(Math.abs(box.height - boxes[0].height), 'boxes share a height').toBeLessThan(1);
+    }
+  });
 });
 
 test.describe('testimonials', () => {
