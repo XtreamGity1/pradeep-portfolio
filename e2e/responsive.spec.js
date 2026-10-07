@@ -54,21 +54,53 @@ test('does not overflow horizontally at load or after scrolling', async ({ page 
   await expectNoHorizontalOverflow(page);
 });
 
+test('navbar is translucent', async ({ page }) => {
+  const header = page.getByRole('banner');
+  await expect(header).toBeVisible();
+  const { background, backdrop } = await header.evaluate(el => {
+    const style = getComputedStyle(el);
+    return { background: style.backgroundColor, backdrop: style.backdropFilter || style.webkitBackdropFilter };
+  });
+  const alpha = background.startsWith('rgba') || background.includes('/') ? parseFloat(background.split(/[,/]/).pop()) : 1;
+  expect(alpha, 'background should be semi-transparent').toBeLessThan(1);
+  expect(backdrop).toContain('blur');
+});
+
 test('navigation adapts to the viewport', async ({ page }) => {
-  const gooeyNav = page.locator('.gooey-nav-container');
+  const header = page.getByRole('banner');
+  const menuButton = page.getByRole('button', { name: /menu/i });
   if (isNarrow(page)) {
-    await expect(gooeyNav).toBeHidden();
-    await expect(page.locator('a[href="#contact"]').first()).toBeVisible();
+    await expect(page.locator('.gooey-nav-container')).toBeHidden();
+    await expect(header.getByRole('link', { name: 'Work', exact: true })).toBeVisible();
+    await expect(menuButton).toBeHidden();
   } else {
-    await expect(gooeyNav).toBeVisible();
-    await expect(gooeyNav.getByRole('link', { name: 'Work' })).toBeVisible();
+    await expect(page.locator('.gooey-nav-container')).toBeVisible();
+    await expect(header.getByRole('link', { name: 'Work', exact: true })).toBeVisible();
   }
 });
 
-test('navbar stays pinned while scrolling', async ({ page }) => {
-  const logo = page.locator('a[href="#top"]').first();
-  await page.locator('#services').scrollIntoViewIfNeeded();
-  await expect(logo).toBeInViewport();
+test('mobile navbar collapses into a hamburger after swiping up', async ({ page }) => {
+  test.skip(!isNarrow(page), 'mobile-only behaviour');
+  const header = page.getByRole('banner');
+  const menuButton = page.getByRole('button', { name: /menu/i });
+
+  await page.evaluate(() => window.scrollTo(0, 600));
+  await expect(menuButton).toBeVisible();
+  await expect(header.getByRole('link', { name: 'Work', exact: true })).toBeHidden();
+  await expect(menuButton).toHaveAttribute('aria-expanded', 'false');
+
+  await menuButton.click();
+  await expect(menuButton).toHaveAttribute('aria-expanded', 'true');
+  const menu = page.getByRole('dialog');
+  await expect(menu).toBeVisible();
+
+  await menu.getByRole('link', { name: 'Contact', exact: true }).click();
+  await expect(menu).toBeHidden();
+  await expect(page.locator('#contact')).toBeInViewport();
+
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(menuButton).toBeHidden();
+  await expect(header.getByRole('link', { name: 'Work', exact: true })).toBeVisible();
 });
 
 test('work cards fit within the viewport', async ({ page }) => {
