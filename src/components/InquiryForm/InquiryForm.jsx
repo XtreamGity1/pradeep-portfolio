@@ -20,7 +20,7 @@ const ORDER = ['name', 'email', 'projectType', 'message', 'budget', 'timeline', 
 // Fields inside the collapsible "optional details" group.
 const DETAILS = ['budget', 'timeline', 'footage'];
 
-// No backend: hand the composed draft to the visitor's email app.
+// Without a `send` function: hand the composed draft to the visitor's email app.
 const assignLocation = href => window.location.assign(href);
 
 // Inputs stay at 16px on phones so iOS doesn't zoom on focus.
@@ -75,7 +75,9 @@ function SelectField({ options, placeholder, ...props }) {
   );
 }
 
-export default function InquiryForm({ to, recipient, openMailto = assignLocation }) {
+// `send(values)` delivers the inquiry directly (resolves when accepted). Without it, a valid submit
+// opens a pre-filled email draft; with it, the draft is only the fallback if sending fails.
+export default function InquiryForm({ to, recipient, send, openMailto = assignLocation }) {
   const uid = useId();
   const id = field => `${uid}-${field}`;
   const titleId = id('title');
@@ -84,10 +86,14 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [summary, setSummary] = useState('');
-  const [sentHref, setSentHref] = useState(null);
+  const [status, setStatus] = useState('idle'); // idle | sending | sent | failed
+  const [draftHref, setDraftHref] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const fieldRefs = useRef({});
   const successRef = useRef(null);
+  const botRef = useRef(null);
+  const sending = status === 'sending';
+  const sent = status === 'sent';
   const register = field => el => {
     fieldRefs.current[field] = el;
   };
@@ -111,8 +117,14 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
     recheck(field, values);
   };
 
-  const handleSubmit = event => {
+  const showSent = () => {
+    flushSync(() => setStatus('sent'));
+    successRef.current?.focus();
+  };
+
+  const handleSubmit = async event => {
     event.preventDefault();
+    if (sending) return;
     const found = validateInquiry(values);
     const invalid = ORDER.filter(field => found[field]);
 
@@ -133,10 +145,27 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
     const href = buildInquiryMailto(to, values, { recipient });
     flushSync(() => {
       setSummary('');
-      setSentHref(href);
+      setDraftHref(href);
     });
-    successRef.current?.focus();
-    openMailto(href);
+
+    if (!send) {
+      showSent();
+      openMailto(href);
+      return;
+    }
+    // Bots tick the hidden trap; let them think it worked.
+    if (botRef.current?.checked) {
+      showSent();
+      return;
+    }
+    flushSync(() => setStatus('sending'));
+    try {
+      await send(values);
+    } catch {
+      setStatus('failed');
+      return;
+    }
+    showSent();
   };
 
   const reset = () => {
@@ -144,7 +173,8 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
       setValues(EMPTY);
       setErrors({});
       setTouched({});
-      setSentHref(null);
+      setStatus('idle');
+      setDraftHref(null);
       setDetailsOpen(false);
     });
     fieldRefs.current.name?.focus();
@@ -165,11 +195,11 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
       <h3 id={titleId} className="text-2xl font-semibold tracking-tight text-fg">
         {inquiry.title}
       </h3>
-      {!sentHref && <p className="mt-2 leading-relaxed text-muted">{inquiry.intro}</p>}
+      {!sent && <p className="mt-2 leading-relaxed text-muted">{inquiry.intro}</p>}
 
       {/* Always mounted so screen readers announce the success message when it appears. */}
       <div role="status">
-        {sentHref && (
+        {sent && (
           <div className="mt-6 rounded-2xl border border-accent/30 bg-accent/10 p-5 sm:p-6">
             <span
               aria-hidden="true"
@@ -178,16 +208,18 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
               &#10003;
             </span>
             <h4 ref={successRef} tabIndex={-1} className="text-xl font-semibold text-fg outline-none">
-              {inquiry.success.title}
+              {(send ? inquiry.sent : inquiry.success).title}
             </h4>
-            <p className="mt-2 leading-relaxed text-muted">{inquiry.success.body}</p>
+            <p className="mt-2 leading-relaxed text-muted">{(send ? inquiry.sent : inquiry.success).body}</p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a
-                href={sentHref}
-                className={`inline-flex min-h-11 items-center justify-center rounded-full border border-line px-5 text-sm font-semibold text-fg transition-colors duration-300 hover:border-fg ${focusRing}`}
-              >
-                {inquiry.success.retry}
-              </a>
+              {!send && (
+                <a
+                  href={draftHref}
+                  className={`inline-flex min-h-11 items-center justify-center rounded-full border border-line px-5 text-sm font-semibold text-fg transition-colors duration-300 hover:border-fg ${focusRing}`}
+                >
+                  {inquiry.success.retry}
+                </a>
+              )}
               <button
                 type="button"
                 onClick={reset}
@@ -200,7 +232,7 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
         )}
       </div>
 
-      {!sentHref && (
+      {!sent && (
         <form aria-labelledby={titleId} noValidate onSubmit={handleSubmit} className="mt-6 grid gap-5 sm:grid-cols-2 sm:gap-x-4">
           <Field
             id={id('name')}
@@ -343,17 +375,31 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
             </label>
           </div>
 
+          {/* Spam trap: hidden from people, ticked by bots. */}
+          <input ref={botRef} type="checkbox" name="botcheck" tabIndex={-1} aria-hidden="true" className="hidden" />
+
           <div className="flex flex-col sm:col-span-2 sm:flex-row sm:items-center">
+            {/* aria-disabled (not disabled) keeps focus on the button while sending. */}
             <button
               type="submit"
-              className={`inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-fg px-7 text-base font-semibold text-ink transition-colors duration-300 hover:bg-accent sm:w-auto ${focusRing}`}
+              aria-disabled={sending || undefined}
+              className={`inline-flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-fg px-7 text-base font-semibold text-ink transition-colors duration-300 hover:bg-accent aria-disabled:cursor-wait aria-disabled:opacity-70 aria-disabled:hover:bg-fg sm:w-auto ${focusRing}`}
             >
-              {inquiry.submitLabel}
-              <span aria-hidden="true">&rarr;</span>
+              {sending ? inquiry.sendingLabel : inquiry.submitLabel}
+              {!sending && <span aria-hidden="true">&rarr;</span>}
             </button>
             {/* Stays rendered (never display:none) so the summary is announced when it fills in. */}
             <p role="alert" className="mt-4 text-sm text-accent empty:m-0 sm:mt-0 sm:ml-5">
-              {Object.keys(errors).length > 0 ? summary : ''}
+              {Object.keys(errors).length > 0 && summary}
+              {status === 'failed' && (
+                <>
+                  {inquiry.failed.message}{' '}
+                  <a href={draftHref} className={`rounded-sm font-semibold underline underline-offset-4 hover:text-fg ${focusRing}`}>
+                    {inquiry.failed.fallback}
+                  </a>
+                  .
+                </>
+              )}
             </p>
           </div>
         </form>
