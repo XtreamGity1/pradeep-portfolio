@@ -33,4 +33,12 @@ window.matchMedia ??= query => ({
 });
 
 window.scrollTo ??= () => {};
+
+// SplitText waits on document.fonts (FontFaceSet), which jsdom doesn't implement.
+if (!document.fonts) {
+  Object.defineProperty(document, 'fonts', {
+    configurable: true,
+    value: { status: 'loaded', ready: Promise.resolve(), addEventListener() {}, removeEventListener() {} },
+  });
+}
 HTMLCanvasElement.prototype.getContext = () => null;
