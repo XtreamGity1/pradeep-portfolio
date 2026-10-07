@@ -128,28 +128,92 @@ export const beforeAfter = [];
 export const services = [
   {
     title: 'Long-form YouTube',
-    body: 'Story-first edits with tight hooks, pattern interrupts, and pacing tuned to your retention graphs.',
+    body: 'Story-first edits with tight hooks, pattern interrupts and pacing that keeps viewers watching past the intro.',
     tag: '01',
+    deliverables: ['Up to 20-min edit', '3 Shorts cut-downs', 'Thumbnail stills'],
+    turnaround: '4 days',
+    platforms: ['YouTube'],
   },
   {
-    title: 'Short-form & Reels',
-    body: 'Vertical cuts for TikTok, Reels and Shorts — captions, punch-ins, and loops built for the scroll.',
+    title: 'Shorts, Reels & TikTok',
+    body: 'Vertical cuts built for the scroll — a hook in the first second, captions, punch-ins and a payoff before the swipe.',
     tag: '02',
+    deliverables: ['Up to 60-sec verticals', 'Animated captions', 'Hook variations to test'],
+    turnaround: '48 hours',
+    platforms: ['TikTok', 'Reels', 'Shorts'],
   },
   {
-    title: 'Podcast & Repurposing',
-    body: 'Multi-cam podcast edits plus a pipeline of clips that turn one recording into a month of content.',
+    title: 'Podcast clips',
+    body: 'Turn one recording into a week of posts: a clean multi-cam episode plus the moments worth clipping.',
     tag: '03',
+    deliverables: ['Multi-cam episode edit', '5–8 highlight clips', 'Cleaned-up audio'],
+    turnaround: '4 days',
+    platforms: ['YouTube', 'Spotify', 'Reels'],
   },
   {
-    title: 'Brand & Commercial',
-    body: 'Polished brand films, launch videos and ads with color grading, sound design and motion graphics.',
+    title: 'Promo & social edits',
+    body: 'Short promos for small businesses — product spots, event recaps and social posts that get to the point fast.',
     tag: '04',
+    deliverables: ['15–60s promo edit', 'Vertical + square versions', 'Licensed music'],
+    turnaround: '3–5 days',
+    platforms: ['Instagram', 'Facebook', 'Web'],
   },
 ];
 
-// Pricing packages.
-export const packages = [];
+// Pricing packages, rendered as "From $<price> <unit>". `badge` marks the recommended plan.
+// Placeholder rates — set your own before going live.
+export const packages = [
+  {
+    name: 'Shorts',
+    price: 40, // placeholder rate
+    unit: 'per short',
+    audience: 'For creators who want to post vertical clips consistently without living in the timeline.',
+    features: ['Up to 60-second vertical edit', 'Hook-first opening and punch-ins', 'Animated captions', 'Music and sound effects'],
+    turnaround: '48 hours',
+    revisions: '1 revision round',
+    cta: 'Order shorts',
+  },
+  {
+    name: 'Long-form',
+    price: 150, // placeholder rate
+    unit: 'per video',
+    audience: 'For YouTube channels that want a clean, well-paced edit on every upload.',
+    features: [
+      'Up to 20-minute edit',
+      'Hook rework and pacing pass',
+      'Captions, b-roll and simple graphics',
+      'Color correction and audio cleanup',
+      '3 thumbnail stills',
+    ],
+    turnaround: '4 days',
+    revisions: '2 revision rounds',
+    cta: 'Book a video edit',
+  },
+  {
+    name: 'Creator bundle',
+    price: 750, // placeholder rate
+    unit: 'per month',
+    badge: 'Best value',
+    audience: 'For small channels posting weekly who want long-form and shorts handled in one place.',
+    features: [
+      '4 long-form edits a month',
+      '8 shorts cut from those videos',
+      'Priority slot in my edit queue',
+      'Shared Frame.io review links',
+      'A style guide so every upload feels consistent',
+    ],
+    turnaround: '3–4 days per video',
+    revisions: '2 revision rounds per video',
+    cta: 'Start a bundle',
+  },
+];
+
+// Risk-free first step shown under the pricing cards.
+export const testEdit = {
+  title: 'Free 60-second test edit',
+  body: 'New to working with me? Send a few minutes of raw footage and I’ll cut a 60-second test edit — free, no strings. Like the pacing? Then we talk packages.',
+  cta: 'Claim your test edit',
+};
 
 export const process = [
   { step: 'Brief', body: 'We align on audience, goals, references and the one feeling the video should leave.' },
