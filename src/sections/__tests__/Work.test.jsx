@@ -44,6 +44,8 @@ describe('Work', () => {
       expect(card.getByText(edit.group)).toBeInTheDocument();
       expect(card.getByText(edit.summary)).toBeInTheDocument();
       expect(item.querySelector('img')).toHaveAttribute('src', edit.image);
+      // Below the fold: stills load only as the grid nears the viewport.
+      expect(item.querySelector('img')).toHaveAttribute('loading', 'lazy');
     }
   });
 
