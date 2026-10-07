@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { Eyebrow } from '../../components/ui';
 import useScrollLock from '../../hooks/useScrollLock';
+import trapTab from '../../lib/trapTab';
 import { reelChapters, showreel } from '../../data';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), video[controls], [tabindex]:not([tabindex="-1"])';
@@ -82,22 +83,10 @@ export default function EditDialog({ edit, prev, next, onSelect, onClose }) {
         requestClose();
         return;
       }
-      if (e.key !== 'Tab' || !panelRef.current) return;
-      const focusables = [...panelRef.current.querySelectorAll(FOCUSABLE)];
-      const first = focusables[0];
-      const last = focusables[focusables.length - 1];
-      const outside = !panelRef.current.contains(document.activeElement);
-      if (e.shiftKey && (outside || document.activeElement === first)) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && (outside || document.activeElement === last)) {
-        e.preventDefault();
-        first.focus();
-      }
+      if (e.key === 'Tab' && panelRef.current) trapTab(e, panelRef.current, FOCUSABLE);
     };
-    // Capture phase: a focused <video>'s native controls swallow Escape before it would bubble up.
-    document.addEventListener('keydown', onKeyDown, true);
-    return () => document.removeEventListener('keydown', onKeyDown, true);
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
   // Browsing to another edit starts it from the top.

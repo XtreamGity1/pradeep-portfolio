@@ -151,13 +151,19 @@ describe('Work', () => {
       expect(cardButton(edit)).toHaveFocus();
     });
 
-    test('Escape still closes it while the video player has focus', () => {
+    test('Tab treats the video as one stop, and Escape closes it from there', () => {
       render(<Work />);
       const dialog = openEdit(edit);
       const video = dialog.querySelector('video');
-      // Native media controls handle Escape themselves and stop it bubbling to the document.
-      video.addEventListener('keydown', e => e.stopPropagation());
-      video.focus();
+      video.tabIndex = 0; // jsdom only lets a <video> take focus with a tabindex
+      // Focus never enters the player's native controls, where Chrome stops passing keys to the page.
+      fireEvent.keyDown(document, { key: 'Tab' });
+      expect(video).toHaveFocus();
+      fireEvent.keyDown(document, { key: 'Tab' });
+      expect(within(dialog).getByRole('button', { name: /^previous/i })).toHaveFocus();
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+      expect(video).toHaveFocus();
+
       fireEvent.keyDown(video, { key: 'Escape' });
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(cardButton(edit)).toHaveFocus();

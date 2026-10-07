@@ -181,9 +181,6 @@ describe('Hero', () => {
       const notPrevented = fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
       expect(notPrevented).toBe(false);
       expect(focusVideo).toHaveBeenCalled();
-
-      // Tab from the first item just moves on naturally.
-      expect(fireEvent.keyDown(document, { key: 'Tab' })).toBe(true);
     });
 
     test('pulls focus back in if it lands outside the dialog', () => {
@@ -208,12 +205,14 @@ describe('Hero', () => {
       expect(document.querySelector(`video[src="${showreel.src}"]`)).toBeNull();
     });
 
-    test('Escape still closes it while the reel player has focus', async () => {
+    test('Tab treats the reel player as one stop, and Escape closes it from there', async () => {
       render(<Hero />);
       const { trigger, dialog } = openShowreel();
       const video = dialog.querySelector('video');
-      // Native media controls handle Escape themselves and stop it bubbling to the document.
-      video.addEventListener('keydown', e => e.stopPropagation());
+      // Focus never enters the player's native controls, where Chrome stops passing keys to the page.
+      const focusVideo = vi.spyOn(video, 'focus');
+      fireEvent.keyDown(document, { key: 'Tab' });
+      expect(focusVideo).toHaveBeenCalled();
       fireEvent.keyDown(video, { key: 'Escape' });
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());

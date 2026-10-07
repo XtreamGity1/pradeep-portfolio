@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Eyebrow, focusRing } from '../ui';
 import useMediaQuery from '../../hooks/useMediaQuery';
 import useScrollLock from '../../hooks/useScrollLock';
+import trapTab from '../../lib/trapTab';
 
 const EASE = [0.22, 1, 0.36, 1];
 const FOCUSABLE = 'button, [href], iframe, video[controls], [tabindex]:not([tabindex="-1"])';
@@ -36,33 +37,21 @@ export default function ShowreelModal({ open, reel, onClose, returnFocusRef }) {
     const video = videoRef.current;
     closeRef.current?.focus();
 
-    const focusables = () => [...(dialogRef.current?.querySelectorAll(FOCUSABLE) ?? [])];
     const onKeyDown = e => {
       if (e.key === 'Escape') {
         onCloseRef.current();
         return;
       }
-      if (e.key !== 'Tab') return;
-      const items = focusables();
-      const first = items[0];
-      const last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault();
-        first.focus();
-      }
+      if (e.key === 'Tab' && dialogRef.current) trapTab(e, dialogRef.current, FOCUSABLE);
     };
     // Catches focus that slips out another way, e.g. tabbing out of a cross-origin iframe.
     const onFocusIn = e => {
       if (dialogRef.current && !dialogRef.current.contains(e.target)) closeRef.current?.focus();
     };
-    // Capture phase: a focused <video>'s native controls swallow Escape before it would bubble up.
-    document.addEventListener('keydown', onKeyDown, true);
+    document.addEventListener('keydown', onKeyDown);
     document.addEventListener('focusin', onFocusIn);
     return () => {
-      document.removeEventListener('keydown', onKeyDown, true);
+      document.removeEventListener('keydown', onKeyDown);
       document.removeEventListener('focusin', onFocusIn);
       // The player stays mounted for the exit animation, so silence it right away.
       video?.pause();
