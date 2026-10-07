@@ -342,5 +342,36 @@ export const clients = [];
 
 export const faqs = [];
 
-// Contact form options.
-export const inquiry = {};
+// Contact form: options and copy. Submitting opens a pre-filled email to profile.email.
+export const inquiry = {
+  title: 'Tell me about your video',
+  intro: 'A few quick details and I’ll come back with ideas, a quote and a turnaround — usually the same day.',
+  projectTypes: ['YouTube long-form', 'Shorts / Reels / TikTok', 'Podcast clips', 'Personal / event video', 'Other'],
+  // Placeholder ranges — set these to your own rates.
+  budgets: ['Under $100', '$100–300', '$300–750', '$750+', 'Not sure yet'],
+  // Placeholder deadlines — match them to your real availability.
+  timelines: ['This week', 'Within 2 weeks', 'Within a month', 'Ongoing — regular uploads', 'Flexible'],
+  testEdit: {
+    label: 'I’d like a free test edit first',
+    hint: 'Send 2–3 minutes of footage and I’ll cut a sample, so you can see my pacing before you commit.',
+  },
+  submitLabel: 'Send project details',
+  success: {
+    title: 'Your email is ready to send.',
+    body: 'Your email app should have opened with everything filled in — just hit send and I’ll reply within 24 hours. Can’t wait to see your footage.',
+    retry: 'Open the email draft again',
+    reset: 'Start a new inquiry',
+  },
+};
+
+// Footer: availability line and quick links to sections.
+export const footer = {
+  availability: 'Taking on new clients',
+  links: [
+    { label: 'Work', href: '#work' },
+    { label: 'Services', href: '#services' },
+    { label: 'Pricing', href: '#pricing' },
+    { label: 'FAQ', href: '#faq' },
+    { label: 'Contact', href: '#contact' },
+  ],
+};

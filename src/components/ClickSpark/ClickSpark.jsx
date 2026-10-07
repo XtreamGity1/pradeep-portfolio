@@ -2,6 +2,9 @@
 
 import { useRef, useEffect, useCallback } from 'react';
 
+// Sparks are skipped entirely for visitors who prefer reduced motion.
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+
 const ClickSpark = ({
   sparkColor = '#fff',
   sparkSize = 10,
@@ -14,7 +17,7 @@ const ClickSpark = ({
 }) => {
   const canvasRef = useRef(null);
   const sparksRef = useRef([]);
-  const startTimeRef = useRef(null);
+  const frameRef = useRef(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -65,16 +68,15 @@ const ClickSpark = ({
     [easing]
   );
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    let animationId;
-
-    const draw = timestamp => {
-      if (!startTimeRef.current) {
-        startTimeRef.current = timestamp;
+  // Draws only while sparks are alive; the loop stops itself when the last one fades.
+  const draw = useCallback(
+    function step(timestamp) {
+      const canvas = canvasRef.current;
+      const ctx = canvas?.getContext('2d');
+      if (!ctx) {
+        sparksRef.current = [];
+        frameRef.current = null;
+        return;
       }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -105,19 +107,16 @@ const ClickSpark = ({
         return true;
       });
 
-      animationId = requestAnimationFrame(draw);
-    };
+      frameRef.current = sparksRef.current.length ? requestAnimationFrame(step) : null;
+    },
+    [sparkColor, sparkSize, sparkRadius, duration, easeFunc, extraScale]
+  );
 
-    animationId = requestAnimationFrame(draw);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, [sparkColor, sparkSize, sparkRadius, sparkCount, duration, easeFunc, extraScale]);
+  useEffect(() => () => cancelAnimationFrame(frameRef.current), []);
 
   const handleClick = e => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || window.matchMedia(REDUCED_MOTION).matches) return;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -131,6 +130,7 @@ const ClickSpark = ({
     }));
 
     sparksRef.current.push(...newSparks);
+    if (frameRef.current == null) frameRef.current = requestAnimationFrame(draw);
   };
 
   return (
