@@ -19,7 +19,7 @@ const tiltProps = {
 // Always-visible info overlay (no hover needed, so it works on touch devices).
 function ProjectOverlay({ project }) {
   return (
-    <div className="flex h-full w-full flex-col justify-between rounded-[15px] bg-gradient-to-b from-transparent via-ink/20 to-ink/90 p-4 sm:p-5">
+    <div className="flex h-full w-full flex-col justify-between rounded-[15px] bg-linear-to-b from-transparent via-ink/20 to-ink/90 p-4 sm:p-5">
       <Pill tone="glass" className="self-start">
         {project.format}
       </Pill>

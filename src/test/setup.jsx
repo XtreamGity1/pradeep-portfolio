@@ -32,8 +32,6 @@ window.matchMedia ??= query => ({
   dispatchEvent: () => false,
 });
 
-window.scrollTo ??= () => {};
-
 // SplitText waits on document.fonts (FontFaceSet), which jsdom doesn't implement.
 if (!document.fonts) {
   Object.defineProperty(document, 'fonts', {

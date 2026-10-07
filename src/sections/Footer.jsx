@@ -14,7 +14,7 @@ export default function Footer() {
         <p>{profile.location}</p>
         <a
           href="#top"
-          className={`group inline-flex items-center gap-2 self-start rounded-sm transition-colors duration-300 hover:text-fg md:self-auto ${focusRing}`}
+          className={`group inline-flex min-h-11 items-center gap-2 self-start rounded-sm transition-colors duration-300 hover:text-fg md:self-auto ${focusRing}`}
         >
           Back to top
           <span aria-hidden="true" className="transition-transform duration-300 group-hover:-translate-y-0.5">

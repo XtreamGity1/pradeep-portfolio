@@ -1,3 +1,5 @@
+import { focusRing } from './styles';
+
 const variants = {
   primary: 'bg-fg text-ink hover:bg-accent',
   ghost: 'border border-line text-fg hover:border-fg',
@@ -8,7 +10,7 @@ export default function Button({ href, variant = 'primary', className = '', chil
   return (
     <a
       href={href}
-      className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors duration-300 ${variants[variant]} ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-colors duration-300 ${focusRing} ${variants[variant]} ${className}`}
       {...rest}
     >
       {children}

@@ -1,16 +1,17 @@
-# React + Vite
+# Editor portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Single-page portfolio for a video/content editor. Built with React, Vite and Tailwind CSS v4, plus React Bits components.
 
-Currently, two official plugins are available:
+- Content: `src/data.js`
+- Section order: `src/App.jsx`
+- Design tokens: `@theme` in `src/index.css`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Scripts
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```sh
+npm run dev       # dev server
+npm run build     # production build
+npm test          # Vitest unit tests
+npm run test:e2e  # Playwright cross-device tests (builds and serves on :4173)
+npm run lint      # oxlint
+```

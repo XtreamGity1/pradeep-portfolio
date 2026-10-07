@@ -2,7 +2,7 @@ import BlurText from '../components/BlurText/BlurText';
 import ClickSpark from '../components/ClickSpark/ClickSpark';
 import Magnet from '../components/Magnet/Magnet';
 import SplitText from '../components/SplitText/SplitText';
-import { Button, ExternalLink, Eyebrow, Section, focusRing } from '../components/ui';
+import { Button, ExternalLink, Eyebrow, Section } from '../components/ui';
 import { profile } from '../data';
 
 // Decorative blurred glows layered behind the content.
@@ -45,7 +45,7 @@ export default function Contact() {
               <Button
                 href={`mailto:${profile.email}`}
                 variant="primary"
-                className={`max-w-full px-6 py-4 text-sm break-all sm:px-8 sm:text-base ${focusRing}`}
+                className="max-w-full py-4 break-all sm:px-8 sm:text-base"
               >
                 {profile.email}
                 <span aria-hidden="true">&rarr;</span>
@@ -58,7 +58,7 @@ export default function Contact() {
               <li key={social.label}>
                 <ExternalLink
                   href={social.href}
-                  className="text-sm text-muted underline-offset-4 transition-colors duration-300 hover:text-fg hover:underline"
+                  className="inline-flex min-h-11 items-center text-sm text-muted underline-offset-4 transition-colors duration-300 hover:text-fg hover:underline"
                 >
                   {social.label}
                 </ExternalLink>

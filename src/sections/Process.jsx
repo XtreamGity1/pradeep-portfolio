@@ -14,7 +14,7 @@ export default function Process() {
             {/* Accent node sitting on the connecting line */}
             <span
               aria-hidden="true"
-              className="absolute -top-[5px] left-0 h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_12px_rgba(255,77,109,0.6)]"
+              className="absolute -top-[5px] left-0 h-2.5 w-2.5 rounded-full bg-accent shadow-[0_0_12px] shadow-accent/60"
             />
             <span aria-hidden="true" className="block font-serif text-5xl italic leading-none text-accent md:text-6xl">
               {stepIndex(i)}
