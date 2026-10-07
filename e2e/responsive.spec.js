@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { projects } from '../src/data.js';
+import { edits } from '../src/data.js';
 
 const SECTION_IDS = ['top', 'about', 'work', 'craft', 'services', 'pricing', 'process', 'testimonials', 'faq', 'contact'];
 const MD_BREAKPOINT = 768;
@@ -106,7 +106,7 @@ test('mobile navbar collapses into a hamburger after swiping up', async ({ page 
 test('work cards fit within the viewport', async ({ page }) => {
   await page.locator('#work').scrollIntoViewIfNeeded();
   const images = page.locator('#work img');
-  await expect(images).toHaveCount(projects.length);
+  await expect(images).toHaveCount(edits.length);
   const width = page.viewportSize().width;
   for (const img of await images.all()) {
     await img.scrollIntoViewIfNeeded();

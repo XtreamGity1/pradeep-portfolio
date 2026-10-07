@@ -67,6 +67,19 @@ describe('BeforeAfter', () => {
     expect(view.getByText(first.why)).toBeInTheDocument();
   });
 
+  test('shows the real reel stills unretouched in a 20:9 frame', () => {
+    const { container } = render(<BeforeAfter />);
+    const panel = screen.getByRole('tabpanel', { name: comparisons[0].label });
+    expect(container.querySelector('[data-compare-frame]')).toHaveClass('aspect-[20/9]');
+    // Just the two stills: no simulated captions, lower thirds or reframe crops on top.
+    const images = within(panel).getAllByRole('img');
+    expect(images).toHaveLength(2);
+    for (const img of images) {
+      expect(img).toHaveAttribute('width', '1600');
+      expect(img).toHaveAttribute('height', '720');
+    }
+  });
+
   test('clicking a tab swaps the comparison', () => {
     render(<BeforeAfter />);
     const target = comparisons[2];

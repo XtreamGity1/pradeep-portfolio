@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { heroVideo, showreel } from '../src/data.js';
+import { heroVideo, reelChapters, showreel } from '../src/data.js';
 
 const TAP_TARGET = 44;
 
@@ -80,6 +80,46 @@ test('reduced motion shows a still frame instead of the background video', async
   await page.reload();
   await expect(hero(page).locator('video')).toHaveCount(0);
   await expect(hero(page).locator(`img[src="${heroVideo.poster}"]`)).toBeVisible();
+  await expect(page.getByTestId('hero-now-showing')).toHaveText('Now showing · Text in background');
+});
+
+test('the now-showing label follows the background video’s playhead', async ({ page }) => {
+  const video = hero(page).locator('video');
+  const label = page.getByTestId('hero-now-showing');
+  await expect.poll(() => video.evaluate(v => v.readyState >= 1), { timeout: 10_000 }).toBe(true);
+
+  for (const chapter of reelChapters.filter(c => c.start >= heroVideo.offset)) {
+    const time = (chapter.start + chapter.end) / 2 - heroVideo.offset;
+    // Pause first so the playhead stays put; seeking fires `timeupdate`.
+    await video.evaluate((v, t) => {
+      v.pause();
+      v.currentTime = t;
+    }, time);
+    await expect(label).toHaveText(`Now showing · ${chapter.label}`);
+  }
+});
+
+test('the now-showing label fits the viewport and stays clear of the hero content', async ({ page }) => {
+  await page.evaluate(() => document.fonts.ready);
+  const label = await page.getByTestId('hero-now-showing').boundingBox();
+  const { width } = page.viewportSize();
+  expect(label.x).toBeGreaterThanOrEqual(0);
+  expect(label.x + label.width).toBeLessThanOrEqual(width);
+
+  const overlaps = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+  const others = [
+    page.locator('header').first(),
+    page.getByRole('heading', { level: 1 }),
+    showreelButton(page),
+    hero(page).getByRole('link', { name: 'View my work' }),
+    hero(page).getByRole('link', { name: 'Get in touch' }),
+    hero(page).getByRole('link', { name: /scroll/i }),
+    hero(page).getByText('Available for new projects'),
+  ];
+  for (const other of others) {
+    if (!(await other.isVisible())) continue;
+    expect(overlaps(label, await other.boundingBox()), await other.textContent()).toBe(false);
+  }
 });
 
 test('the showreel plays the full reel', async ({ page }) => {

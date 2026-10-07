@@ -183,7 +183,7 @@ export default function Navbar() {
           collapsed ? 'max-md:pointer-events-none max-md:border-transparent max-md:bg-transparent max-md:backdrop-blur-none' : ''
         }`}
       >
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 md:h-20">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6 md:h-16">
           <a
             href="#top"
             className={`group flex min-w-0 shrink-0 items-center gap-3 rounded-full transition-[opacity,visibility,translate] duration-300 ${focusRing} ${

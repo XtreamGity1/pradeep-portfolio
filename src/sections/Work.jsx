@@ -2,31 +2,37 @@ import { useRef, useState } from 'react';
 import { MotionConfig } from 'motion/react';
 import { Button, Card, Eyebrow, Section, SectionHeading, focusRing } from '../components/ui';
 import useMediaQuery from '../hooks/useMediaQuery';
-import ProjectCard from './work/ProjectCard';
-import ProjectDialog from './work/ProjectDialog';
-import { projects, workCta } from '../data';
+import EditCard from './work/EditCard';
+import EditDialog from './work/EditDialog';
+import { edits, workCta } from '../data';
 
 const ALL = 'All';
 // Filter buttons come straight from the data, in order of first appearance.
-const categories = [...new Set(projects.map(p => p.category))];
-const filters = [ALL, ...categories].map(label => ({
+const groups = [...new Set(edits.map(e => e.group))];
+const filters = [ALL, ...groups].map(label => ({
   label,
-  count: label === ALL ? projects.length : projects.filter(p => p.category === label).length,
+  count: label === ALL ? edits.length : edits.filter(e => e.group === label).length,
 }));
+
+// The CTA card spans whatever is left of the last row, so the grid never has a gap
+// (2 columns from sm, 3 from lg). Literal class names so Tailwind can see them.
+const SM_SPAN = ['sm:col-span-2', 'sm:col-span-1'];
+const LG_SPAN = ['lg:col-span-3', 'lg:col-span-2', 'lg:col-span-1'];
+const ctaSpan = count => `${SM_SPAN[count % 2]} ${LG_SPAN[count % 3]}`;
 
 // Tilt only where there is a real hover pointer and the visitor hasn't asked for less motion.
 const TILT_QUERY = '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)';
 
 function statusText(filter, count) {
-  if (filter === ALL) return `Showing all ${count} projects`;
-  return `Showing ${count} ${filter} ${count === 1 ? 'project' : 'projects'}`;
+  if (filter === ALL) return `Showing all ${count} edits`;
+  return `Showing ${count} ${filter} ${count === 1 ? 'edit' : 'edits'}`;
 }
 
-// Toggle buttons (aria-pressed) for the format filter. Exactly one is pressed at a time.
+// Toggle buttons (aria-pressed) for the technique filter. Exactly one is pressed at a time.
 function FilterBar({ active, onChange, count }) {
   return (
     <div className="mb-8 flex flex-col gap-4 md:mb-10 lg:flex-row lg:items-center lg:justify-between">
-      <div role="group" aria-label="Filter projects by format" className="flex flex-wrap gap-2">
+      <div role="group" aria-label="Filter edits by technique" className="flex flex-wrap gap-2">
         {filters.map(({ label, count: total }) => (
           <button
             key={label}
@@ -68,19 +74,19 @@ function NextProjectCard() {
 
 export default function Work() {
   const [filter, setFilter] = useState(ALL);
-  const [openTitle, setOpenTitle] = useState(null);
+  const [openId, setOpenId] = useState(null);
   const tilt = useMediaQuery(TILT_QUERY);
   const cardButtons = useRef(new Map());
 
-  const visible = filter === ALL ? projects : projects.filter(p => p.category === filter);
-  const openIndex = visible.findIndex(p => p.title === openTitle);
+  const visible = filter === ALL ? edits : edits.filter(e => e.group === filter);
+  const openIndex = visible.findIndex(e => e.id === openId);
   const open = visible[openIndex];
   const neighbour = step => (visible.length > 1 ? visible[(openIndex + step + visible.length) % visible.length] : null);
 
-  // Return focus to the card of whichever project was on screen when the dialog closed.
+  // Return focus to the card of whichever edit was on screen when the dialog closed.
   const close = () => {
-    cardButtons.current.get(openTitle)?.focus();
-    setOpenTitle(null);
+    cardButtons.current.get(openId)?.focus();
+    setOpenId(null);
   };
 
   return (
@@ -88,36 +94,33 @@ export default function Work() {
       <SectionHeading eyebrow="Selected work" title="Edits that" accent="move the needle." />
       <FilterBar active={filter} onChange={setFilter} count={visible.length} />
 
-      {/* Fixed row height; vertical (9:16) projects span two rows. Dense flow keeps the grid gap-free. */}
-      <ul
-        aria-label="Projects"
-        className="grid grid-flow-dense auto-rows-[280px] grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3"
-      >
-        {visible.map(project => (
-          <li key={project.title} className={project.orientation === 'vertical' ? 'row-span-2' : ''}>
-            <ProjectCard
-              project={project}
+      {/* Every edit is landscape, so all rows share one height. */}
+      <ul aria-label="Edits" className="grid auto-rows-[280px] grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+        {visible.map(edit => (
+          <li key={edit.id}>
+            <EditCard
+              edit={edit}
               tilt={tilt}
-              onOpen={() => setOpenTitle(project.title)}
+              onOpen={() => setOpenId(edit.id)}
               buttonRef={el => {
-                if (el) cardButtons.current.set(project.title, el);
-                else cardButtons.current.delete(project.title);
+                if (el) cardButtons.current.set(edit.id, el);
+                else cardButtons.current.delete(edit.id);
               }}
             />
           </li>
         ))}
-        <li>
+        <li className={ctaSpan(visible.length)}>
           <NextProjectCard />
         </li>
       </ul>
 
       <MotionConfig reducedMotion="user">
         {open && (
-          <ProjectDialog
-            project={open}
+          <EditDialog
+            edit={open}
             prev={neighbour(-1)}
             next={neighbour(1)}
-            onSelect={p => setOpenTitle(p.title)}
+            onSelect={e => setOpenId(e.id)}
             onClose={close}
           />
         )}

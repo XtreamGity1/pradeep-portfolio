@@ -11,70 +11,9 @@ const PANEL_ID = 'craft-panel';
 // Timeline "clip" colors for the breakdown, cycling like tracks in an NLE.
 const TRACK_COLORS = ['border-accent', 'border-accent-2', 'border-accent-3', 'border-fg/60'];
 
-// Shared <img> props: 16:9 frames that never hijack a drag.
-const frameImg = { width: 1200, height: 675, loading: 'lazy', decoding: 'async', draggable: false };
+// Shared <img> props: letterbox-cropped reel stills (20:9) that never hijack a drag.
+const frameImg = { width: 1600, height: 720, loading: 'lazy', decoding: 'async', draggable: false };
 const coverImg = 'pointer-events-none absolute inset-0 size-full object-cover';
-
-// Overlays sit in the right half — the finished side that's visible at the default split.
-const FINISHED_HALF = 'absolute right-[4%] left-[54%]';
-
-// Burned-in caption with one highlighted word, sized to the frame via a container query.
-function Captions({ text, highlight }) {
-  return (
-    <p
-      aria-hidden="true"
-      className={`${FINISHED_HALF} bottom-[12%] text-center text-sm leading-snug font-extrabold uppercase text-fg text-shadow-lg/60 @md:text-xl @2xl:text-3xl`}
-    >
-      {text.split(' ').map((word, i) => (
-        <span key={i}>
-          {i > 0 && ' '}
-          {word === highlight ? <span className="rounded bg-accent-3 px-1.5 text-ink text-shadow-none">{word}</span> : word}
-        </span>
-      ))}
-    </p>
-  );
-}
-
-// Animated-style lower third plus a trip-progress tracker.
-function LowerThird({ title, subtitle }) {
-  return (
-    <div aria-hidden="true" className={`${FINISHED_HALF} bottom-[7%]`}>
-      <div className="inline-block border-l-4 border-accent bg-ink/70 px-3 py-1.5 backdrop-blur-sm @md:px-4 @md:py-2">
-        <p className="text-xs font-semibold text-fg @md:text-lg">{title}</p>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-3 @md:text-xs">{subtitle}</p>
-      </div>
-      <div className="mt-2 h-1 rounded-full bg-fg/25 @md:mt-3">
-        <div className="h-full w-3/5 rounded-full bg-accent" />
-      </div>
-    </div>
-  );
-}
-
-// The finished side of a comparison: the clean frame plus the comparison's optional overlay.
-function FinishedFrame({ frame, overlay }) {
-  if (overlay?.kind === 'reframe') {
-    return (
-      <>
-        <img {...frameImg} src={frame.src} alt="" className={`${coverImg} scale-110 blur-md brightness-50`} />
-        {/* 9:16 crop with its safe zone, centered in the finished half. */}
-        <div className="absolute inset-y-0 left-[75%] aspect-[9/16] -translate-x-1/2 overflow-hidden ring-2 ring-fg/80">
-          <img {...frameImg} src={frame.src} alt={frame.alt} className={coverImg} />
-          <span
-            aria-hidden="true"
-            className="absolute inset-x-[8%] top-[10%] bottom-[20%] rounded border-2 border-dashed border-accent-3 shadow-[0_0_0_1px] shadow-ink/40"
-          />
-        </div>
-      </>
-    );
-  }
-  return (
-    <>
-      <img {...frameImg} src={frame.src} alt={frame.alt} className={coverImg} />
-      {overlay?.kind === 'captions' && <Captions {...overlay} />}
-      {overlay?.kind === 'lowerThird' && <LowerThird {...overlay} />}
-    </>
-  );
-}
 
 function ComparisonTabs({ active, onSelect }) {
   const tabs = useRef([]);
@@ -167,10 +106,11 @@ export default function BeforeAfter() {
           {/* Keyed so each comparison starts centered with fresh images. */}
           <CompareSlider
             key={current.id}
+            aspect="aspect-[20/9]"
             beforeLabel={current.before.label}
             afterLabel={current.after.label}
             before={<img {...frameImg} src={current.before.src} alt={current.before.alt} className={coverImg} />}
-            after={<FinishedFrame frame={current.after} overlay={current.overlay} />}
+            after={<img {...frameImg} src={current.after.src} alt={current.after.alt} className={coverImg} />}
           />
           <p className="mt-4 text-center text-xs text-muted sm:text-sm">Drag the handle, tap the frame or use the arrow keys.</p>
         </div>

@@ -22,7 +22,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('slider is keyboard operable', async ({ page }) => {
-  const slider = page.getByRole('slider', { name: /compare raw and graded/i });
+  const slider = page.getByRole('slider', { name: /compare log and graded/i });
   await expect(slider).toHaveAttribute('aria-valuenow', '50');
   await slider.focus();
   await page.keyboard.press('ArrowRight');
@@ -69,16 +69,16 @@ test('swiping vertically over the slider still scrolls the page', async ({ page,
 });
 
 test('tabs switch the comparison and are keyboard navigable', async ({ page }) => {
-  const reframe = page.getByRole('tab', { name: 'Reframe' });
-  await reframe.click();
-  await expect(reframe).toHaveAttribute('aria-selected', 'true');
-  await expect(page.getByRole('tabpanel', { name: 'Reframe' })).toBeVisible();
-  await expect(page.getByRole('slider', { name: /compare wide and vertical/i })).toBeVisible();
+  const sky = page.getByRole('tab', { name: 'Sky replacement' });
+  await sky.click();
+  await expect(sky).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tabpanel', { name: 'Sky replacement' })).toBeVisible();
+  await expect(page.getByRole('slider', { name: /compare original and replaced/i })).toBeVisible();
 
   await page.keyboard.press('ArrowRight');
-  const motion = page.getByRole('tab', { name: 'Motion graphics' });
-  await expect(motion).toBeFocused();
-  await expect(motion).toHaveAttribute('aria-selected', 'true');
+  const greenscreen = page.getByRole('tab', { name: 'Greenscreen' });
+  await expect(greenscreen).toBeFocused();
+  await expect(greenscreen).toHaveAttribute('aria-selected', 'true');
 });
 
 test('tap targets are at least 44px and the frame fits the viewport', async ({ page }) => {
@@ -104,8 +104,15 @@ test('tap targets are at least 44px and the frame fits the viewport', async ({ p
 });
 
 test('both frames load and the breakdown timeline is visible', async ({ page }) => {
-  const images = page.locator('#craft [role="tabpanel"] img[alt]:not([alt=""])');
+  const images = page.locator('#craft [role="tabpanel"] img');
   await expect(images).toHaveCount(2);
+  for (const img of await images.all()) {
+    await expect(img).not.toHaveAttribute('alt', '');
+    await expect.poll(() => img.evaluate(el => el.complete && el.naturalWidth)).toBe(1600);
+  }
+  // The frame matches the stills' 20:9 shape, so nothing is cropped.
+  const frame = await page.locator('#craft [data-compare-frame]').boundingBox();
+  expect(frame.width / frame.height).toBeCloseTo(20 / 9, 1);
   await page.locator('#craft ol').scrollIntoViewIfNeeded();
   await expect(page.getByRole('list', { name: /what goes into an edit/i }).getByRole('listitem')).toHaveCount(5);
 });

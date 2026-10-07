@@ -82,11 +82,11 @@
 }
 
 @layer base {
-  /* Keep in-page anchors clear of the fixed header (h-16, md:h-20, plus its 1px bottom border). */
+  /* Keep in-page anchors clear of the fixed header (h-14, md:h-16, plus its 1px bottom border). */
   html {
-    scroll-padding-top: calc(--spacing(16) + 1px);
+    scroll-padding-top: calc(--spacing(14) + 1px);
     @variant md {
-      scroll-padding-top: calc(--spacing(20) + 1px);
+      scroll-padding-top: calc(--spacing(16) + 1px);
     }
     @media (prefers-reduced-motion: no-preference) {
       scroll-behavior: smooth;

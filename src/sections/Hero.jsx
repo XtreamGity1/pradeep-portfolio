@@ -7,7 +7,7 @@ import Magnet from '../components/Magnet/Magnet';
 import ShowreelModal from '../components/ShowreelModal/ShowreelModal';
 import { Button, Eyebrow, Pill, focusRing } from '../components/ui';
 import useMediaQuery from '../hooks/useMediaQuery';
-import { heroVideo, profile, showreel } from '../data';
+import { heroVideo, profile, reelChapters, showreel } from '../data';
 
 // Dimmed so the headline stays readable over bright footage.
 const HERO_MEDIA_CLASS = 'absolute inset-0 size-full object-cover opacity-60';
@@ -25,6 +25,27 @@ const MAGNET = { padding: 0, magnetStrength: 8 };
 // Same pill + primary colors as <Button>; the play disc plus py-1 keeps the height equal to it.
 const SHOWREEL_CLASS =
   'group inline-flex items-center gap-3 rounded-full border border-transparent bg-fg py-1 pr-6 pl-1 text-sm font-semibold text-ink transition-colors duration-300 hover:bg-accent';
+
+// The reel chapter on screen when the background loop is `time` seconds in (undefined between chapters).
+const chapterAt = time => {
+  const reelTime = time + heroVideo.offset;
+  return reelChapters.find(c => c.start <= reelTime && reelTime < c.end);
+};
+
+// The reel prints each technique bottom-right, but dimmed and cropped here — so restate it crisply.
+// Top-right under the header below md, where the bottom belongs to the centred scroll cue.
+function NowShowing({ chapter }) {
+  if (!chapter) return null;
+  return (
+    <p
+      data-testid="hero-now-showing"
+      className="absolute top-20 right-4 z-10 rounded-full border border-fg/15 bg-ink/60 px-3 py-1.5 font-mono text-[11px] tracking-[0.15em] text-fg/80 uppercase backdrop-blur-md sm:text-xs md:top-auto md:right-6 md:bottom-6"
+    >
+      <span className="text-muted">Now showing · </span>
+      {chapter.label}
+    </p>
+  );
+}
 
 function PlayIcon() {
   return (
@@ -46,6 +67,8 @@ export default function Hero() {
   const magnetOff = reducedMotion || !finePointer;
   const [reelOpen, setReelOpen] = useState(false);
   const reelButtonRef = useRef(null);
+  // Starts on the poster frame's chapter; the video's playhead keeps it in sync from there.
+  const [chapter, setChapter] = useState(() => chapterAt(0));
 
   return (
     <section
@@ -65,10 +88,12 @@ export default function Hero() {
             loop
             playsInline
             preload="auto"
+            onTimeUpdate={e => setChapter(chapterAt(e.currentTarget.currentTime))}
             className={HERO_MEDIA_CLASS}
           />
         )}
         <div className="absolute inset-0 bg-linear-to-b from-ink/70 via-ink/55 to-ink" />
+        <NowShowing chapter={chapter} />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center text-center">
