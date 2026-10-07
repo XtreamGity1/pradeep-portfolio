@@ -3,8 +3,6 @@
 import { Renderer, Program, Mesh, Color, Triangle } from 'ogl';
 import { useEffect, useRef } from 'react';
 
-import './Aurora.css';
-
 const VERT = `#version 300 es
 in vec2 position;
 void main() {
@@ -210,7 +208,7 @@ export default function Aurora(props) {
       gl.getExtension('WEBGL_lose_context')?.loseContext();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [amplitude, blend, lightMode]);
+  }, [amplitude]);
 
-  return <div ref={ctnDom} className="aurora-container" />;
+  return <div ref={ctnDom} className="w-full h-full" />;
 }

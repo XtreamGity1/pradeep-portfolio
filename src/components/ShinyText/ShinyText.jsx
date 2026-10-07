@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useAnimationFrame, useTransform } from 'motion/react';
-import './ShinyText.css';
 
 const ShinyText = ({
   text,
@@ -42,6 +41,7 @@ const ShinyText = ({
 
     elapsedRef.current += deltaTime;
 
+    // Animation goes from 0 to 100
     if (yoyo) {
       const cycleDuration = animationDuration + delayDuration;
       const fullCycle = cycleDuration * 2;
@@ -106,7 +106,7 @@ const ShinyText = ({
 
   return (
     <motion.span
-      className={`shiny-text ${className}`}
+      className={`inline-block ${className}`}
       style={{ ...gradientStyle, backgroundPosition }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

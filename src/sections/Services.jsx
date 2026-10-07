@@ -12,7 +12,7 @@ export default function Services() {
           <li key={service.tag} className="h-full">
             {/* SpotlightCard ships unlayered CSS, so token overrides need `!`. */}
             <SpotlightCard
-              className="h-full border-line! bg-surface! p-6! sm:p-8! lg:p-10!"
+              className="h-full rounded-2xl! border-line! bg-surface! p-6! sm:p-8! lg:p-10!"
               spotlightColor="rgba(255, 77, 109, 0.2)"
             >
               <span className="font-mono text-sm tracking-[0.2em] text-accent">{service.tag}</span>

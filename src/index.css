@@ -13,6 +13,64 @@
   --color-accent: #ff4d6d;
   --color-accent-2: #8b5cf6;
   --color-accent-3: #ffb86b;
+
+  /* GooeyNav (React Bits) animations. --time is set per element at runtime. */
+  --animate-gooey-pill: gooey-pill 0.3s ease both;
+  --animate-gooey-particle: gooey-particle var(--time) ease 1 -350ms;
+  --animate-gooey-point: gooey-point var(--time) ease 1 -350ms;
+
+  @keyframes gooey-pill {
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes gooey-particle {
+    0% {
+      transform: rotate(0deg) translate(var(--start-x), var(--start-y));
+      opacity: 1;
+      animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    70% {
+      transform: rotate(calc(var(--rotate) * 0.5)) translate(calc(var(--end-x) * 1.2), calc(var(--end-y) * 1.2));
+      opacity: 1;
+      animation-timing-function: ease;
+    }
+    85% {
+      transform: rotate(calc(var(--rotate) * 0.66)) translate(var(--end-x), var(--end-y));
+      opacity: 1;
+    }
+    100% {
+      transform: rotate(calc(var(--rotate) * 1.2)) translate(calc(var(--end-x) * 0.5), calc(var(--end-y) * 0.5));
+      opacity: 1;
+    }
+  }
+  @keyframes gooey-point {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+      animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+    }
+    25% {
+      transform: scale(calc(var(--scale) * 0.25));
+    }
+    38% {
+      opacity: 1;
+    }
+    65% {
+      transform: scale(var(--scale));
+      opacity: 1;
+      animation-timing-function: ease;
+    }
+    85% {
+      transform: scale(var(--scale));
+      opacity: 1;
+    }
+    100% {
+      transform: scale(0);
+      opacity: 0;
+    }
+  }
 }
 
 /* Particle colors used by the React Bits GooeyNav. */

@@ -10,7 +10,6 @@ import {
   useVelocity,
   useAnimationFrame
 } from 'motion/react';
-import './ScrollVelocity.css';
 
 function useElementWidth(ref) {
   const [width, setWidth] = useState(0);
@@ -101,17 +100,20 @@ export const ScrollVelocity = ({
     });
 
     const spans = [];
-    for (let i = 0; i < numCopies; i++) {
+    for (let i = 0; i < (numCopies ?? 1); i++) {
       spans.push(
-        <span className={className} key={i} ref={i === 0 ? copyRef : null}>
+        <span className={`flex-shrink-0 ${className}`} key={i} ref={i === 0 ? copyRef : null}>
           {children}&nbsp;
         </span>
       );
     }
 
     return (
-      <div className={parallaxClassName} style={parallaxStyle}>
-        <motion.div className={scrollerClassName} style={{ x, ...scrollerStyle }}>
+      <div className={`${parallaxClassName} relative overflow-hidden`} style={parallaxStyle}>
+        <motion.div
+          className={`${scrollerClassName} flex whitespace-nowrap text-center font-sans text-4xl font-bold tracking-[-0.02em] drop-shadow md:text-[5rem] md:leading-[5rem]`}
+          style={{ x, ...scrollerStyle }}
+        >
           {spans}
         </motion.div>
       </div>

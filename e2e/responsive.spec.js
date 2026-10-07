@@ -69,13 +69,12 @@ test('navbar is translucent', async ({ page }) => {
 test('navigation adapts to the viewport', async ({ page }) => {
   const header = page.getByRole('banner');
   const menuButton = page.getByRole('button', { name: /menu/i });
+  await expect(header.getByRole('link', { name: 'Work', exact: true })).toBeVisible();
   if (isNarrow(page)) {
-    await expect(page.locator('.gooey-nav-container')).toBeHidden();
-    await expect(header.getByRole('link', { name: 'Work', exact: true })).toBeVisible();
     await expect(menuButton).toBeHidden();
   } else {
-    await expect(page.locator('.gooey-nav-container')).toBeVisible();
-    await expect(header.getByRole('link', { name: 'Work', exact: true })).toBeVisible();
+    // Desktop renders the GooeyNav <nav> landmark.
+    await expect(header.getByRole('navigation')).toBeVisible();
   }
 });
 
