@@ -67,18 +67,17 @@ test.describe('process timeline', () => {
   });
 });
 
-test.describe('testimonials', () => {
-  test('every quote is visible inside the viewport without page overflow', async ({ page }) => {
-    const section = page.locator('#testimonials');
+test.describe('promises', () => {
+  test('every promise is visible inside the viewport without page overflow', async ({ page }) => {
+    const section = page.locator('#promises');
     await section.scrollIntoViewIfNeeded();
-    const figures = section.locator('figure');
-    expect(await figures.count()).toBeGreaterThanOrEqual(2);
-    for (const figure of await figures.all()) {
-      await figure.scrollIntoViewIfNeeded();
-      await expect(figure.locator('blockquote')).toBeVisible();
-      await expect(figure.locator('figcaption')).toBeVisible();
+    const items = section.getByRole('list', { name: 'Promises' }).getByRole('listitem');
+    expect(await items.count()).toBeGreaterThanOrEqual(3);
+    for (const item of await items.all()) {
+      await item.scrollIntoViewIfNeeded();
+      await expect(item.getByRole('heading', { level: 3 })).toBeVisible();
     }
-    await expectWithinViewport(page, figures);
+    await expectWithinViewport(page, items);
     await expectNoHorizontalOverflow(page);
   });
 });

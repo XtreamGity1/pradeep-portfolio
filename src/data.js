@@ -428,29 +428,24 @@ export const tools = [
   'Frame.io',
 ];
 
-// PLACEHOLDER QUOTES — replace every entry with a real quote (and real name/role) before launch.
-// Leave the array empty to hide the testimonials section entirely.
-export const testimonials = [
+// "What you can count on": commitments in place of testimonials until there are real client quotes.
+// Each one restates a promise made elsewhere on the page (test edit, FAQ, process), so keep them in sync.
+export const promises = [
   {
-    // PLACEHOLDER — replace with a real quote.
-    quote:
-      'Pradeep re-cut my first ten videos and the difference was obvious — tighter intros, no dead air, and people actually stuck around to the end.',
-    name: 'Sam Patel',
-    role: 'Friend & small YouTube channel',
+    title: 'Try before you pay',
+    body: 'A free 60-second test edit from your own footage, so you judge the hook, pacing and style first.',
   },
   {
-    // PLACEHOLDER — replace with a real quote.
-    quote:
-      'He edited our student short in a week and found a better ending in the footage than the one we had scripted.',
-    name: 'Maya Chen',
-    role: 'Director, film school short',
+    title: 'Fast, predictable turnaround',
+    body: 'Shorts back within 48 hours; a long-form first cut inside 72. Bigger projects get a date we agree upfront.',
   },
   {
-    // PLACEHOLDER — replace with a real quote.
-    quote:
-      'Quick replies, clear timelines and Reels that finally look like us. Easy to work with from the first message.',
-    name: 'Luis Ortega',
-    role: 'Owner, local café',
+    title: 'Replies within a day',
+    body: 'A small client list means your project gets real attention and your messages never sit for long.',
+  },
+  {
+    title: 'Yours, and safe to upload',
+    body: 'You own the exports and the project file, and every track and effect is properly licensed.',
   },
 ];
 
