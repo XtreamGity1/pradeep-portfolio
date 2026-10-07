@@ -33,12 +33,47 @@ export const marquee = [
   'Color grading · Sound design · Motion graphics ·',
 ];
 
+// Practice numbers, not results claims. PLACEHOLDER values — replace with your real counts.
 export const stats = [
-  { value: 250, suffix: 'M+', label: 'Views generated' },
-  { value: 1200, suffix: '+', label: 'Videos delivered', separator: ',' },
-  { value: 60, suffix: '+', label: 'Creators & brands' },
-  { value: 38, suffix: '%', label: 'Avg. retention lift' },
+  { value: 40, suffix: '+', label: 'Projects edited' },
+  { value: 300, suffix: '+', label: 'Hours of footage cut' },
+  { value: 6, suffix: '', label: 'Formats practiced' },
+  { value: 8, suffix: '', label: 'Tools in the kit' },
 ];
+
+// About section: portrait, "how I cut" principles and platform row.
+export const aboutDetails = {
+  // PLACEHOLDER photo — swap for your own (e.g. '/portrait.jpg' in /public) and keep the alt accurate.
+  portrait: {
+    src: 'https://picsum.photos/seed/editor-portrait/800/1000',
+    alt: `Portrait of ${profile.name} at his editing desk`,
+    width: 800,
+    height: 1000,
+  },
+  principlesTitle: 'How I cut',
+  platformsTitle: 'Platforms I edit for',
+};
+
+export const principles = [
+  {
+    title: 'Hook in three seconds',
+    body: 'The first frame is a promise. I open on the payoff, the question or the tension — and try a few openings before I commit to one.',
+  },
+  {
+    title: 'Cut for retention',
+    body: 'I study retention graphs like game tape: where attention dips, what wins it back, what earns the next ten seconds. Every cut needs a reason.',
+  },
+  {
+    title: 'Sound is half the picture',
+    body: 'Clean dialogue, music that breathes, effects you feel more than hear. I’m obsessed with how much the audio carries a cut.',
+  },
+  {
+    title: 'Captions for silent autoplay',
+    body: 'Most feeds start muted, so captions are part of the edit for me — readable, on the beat and styled to match the video.',
+  },
+];
+
+export const platforms = ['YouTube', 'TikTok', 'Instagram Reels', 'YouTube Shorts', 'LinkedIn', 'Podcasts'];
 
 // Swap `image` for your own thumbnails (drop files in /public and use '/my-thumb.jpg').
 export const projects = [
