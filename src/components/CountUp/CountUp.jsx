@@ -2,6 +2,7 @@
 
 import { useInView, useMotionValue, useSpring } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 export default function CountUp({
   to,
@@ -16,6 +17,8 @@ export default function CountUp({
   onEnd
 }) {
   const ref = useRef(null);
+  // With reduced motion, skip the count and render the end value straight away.
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
   const motionValue = useMotionValue(direction === 'down' ? to : from);
 
   const damping = 20 + 40 * (1 / duration);
@@ -63,12 +66,14 @@ export default function CountUp({
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.textContent = formatValue(direction === 'down' ? to : from);
+      const start = direction === 'down' ? to : from;
+      const end = direction === 'down' ? from : to;
+      ref.current.textContent = formatValue(reduceMotion ? end : start);
     }
-  }, [from, to, direction, formatValue]);
+  }, [from, to, direction, formatValue, reduceMotion]);
 
   useEffect(() => {
-    if (isInView && startWhen) {
+    if (isInView && startWhen && !reduceMotion) {
       if (typeof onStart === 'function') onStart();
 
       const timeoutId = setTimeout(() => {
@@ -87,9 +92,10 @@ export default function CountUp({
         clearTimeout(durationTimeoutId);
       };
     }
-  }, [isInView, startWhen, motionValue, direction, from, to, delay, onStart, onEnd, duration]);
+  }, [isInView, startWhen, reduceMotion, motionValue, direction, from, to, delay, onStart, onEnd, duration]);
 
   useEffect(() => {
+    if (reduceMotion) return;
     const unsubscribe = springValue.on('change', latest => {
       if (ref.current) {
         ref.current.textContent = formatValue(latest);
@@ -97,7 +103,7 @@ export default function CountUp({
     });
 
     return () => unsubscribe();
-  }, [springValue, formatValue]);
+  }, [springValue, formatValue, reduceMotion]);
 
   return <span className={className} ref={ref} />;
 }

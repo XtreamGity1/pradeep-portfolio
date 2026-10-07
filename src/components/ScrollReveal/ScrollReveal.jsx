@@ -3,6 +3,7 @@
 import { useEffect, useRef, useMemo } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -19,6 +20,8 @@ const ScrollReveal = ({
   wordAnimationEnd = 'bottom bottom'
 }) => {
   const containerRef = useRef(null);
+  // Reduced motion: leave the copy static and fully visible.
+  const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
 
   const splitText = useMemo(() => {
     const text = typeof children === 'string' ? children : '';
@@ -34,52 +37,36 @@ const ScrollReveal = ({
 
   useEffect(() => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el || reduceMotion) return;
 
     const scroller = scrollContainerRef && scrollContainerRef.current ? scrollContainerRef.current : window;
 
-    gsap.fromTo(
-      el,
-      { transformOrigin: '0% 50%', rotate: baseRotation },
-      {
-        ease: 'none',
-        rotate: 0,
-        scrollTrigger: {
-          trigger: el,
-          scroller,
-          start: 'top bottom',
-          end: rotationEnd,
-          scrub: true
-        }
-      }
-    );
-
-    const wordElements = el.querySelectorAll('.word');
-
-    gsap.fromTo(
-      wordElements,
-      { opacity: baseOpacity, willChange: 'opacity' },
-      {
-        ease: 'none',
-        opacity: 1,
-        stagger: 0.05,
-        scrollTrigger: {
-          trigger: el,
-          scroller,
-          start: 'top bottom-=20%',
-          end: wordAnimationEnd,
-          scrub: true
-        }
-      }
-    );
-
-    if (enableBlur) {
+    // Scope tweens + triggers so cleanup only reverts this instance, not every ScrollTrigger on the page.
+    const ctx = gsap.context(() => {
       gsap.fromTo(
-        wordElements,
-        { filter: `blur(${blurStrength}px)` },
+        el,
+        { transformOrigin: '0% 50%', rotate: baseRotation },
         {
           ease: 'none',
-          filter: 'blur(0px)',
+          rotate: 0,
+          scrollTrigger: {
+            trigger: el,
+            scroller,
+            start: 'top bottom',
+            end: rotationEnd,
+            scrub: true
+          }
+        }
+      );
+
+      const wordElements = el.querySelectorAll('.word');
+
+      gsap.fromTo(
+        wordElements,
+        { opacity: baseOpacity, willChange: 'opacity' },
+        {
+          ease: 'none',
+          opacity: 1,
           stagger: 0.05,
           scrollTrigger: {
             trigger: el,
@@ -90,17 +77,35 @@ const ScrollReveal = ({
           }
         }
       );
-    }
 
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-    };
-  }, [scrollContainerRef, enableBlur, baseRotation, baseOpacity, rotationEnd, wordAnimationEnd, blurStrength]);
+      if (enableBlur) {
+        gsap.fromTo(
+          wordElements,
+          { filter: `blur(${blurStrength}px)` },
+          {
+            ease: 'none',
+            filter: 'blur(0px)',
+            stagger: 0.05,
+            scrollTrigger: {
+              trigger: el,
+              scroller,
+              start: 'top bottom-=20%',
+              end: wordAnimationEnd,
+              scrub: true
+            }
+          }
+        );
+      }
+    }, el);
 
+    return () => ctx.revert();
+  }, [scrollContainerRef, reduceMotion, enableBlur, baseRotation, baseOpacity, rotationEnd, wordAnimationEnd, blurStrength]);
+
+  // A plain wrapper (not the upstream <h2>) so the reveal never adds a heading to the outline.
   return (
-    <h2 ref={containerRef} className={`my-5 ${containerClassName}`}>
+    <div ref={containerRef} className={`my-5 ${containerClassName}`}>
       <p className={`text-[clamp(1.6rem,4vw,3rem)] leading-[1.5] font-semibold ${textClassName}`}>{splitText}</p>
-    </h2>
+    </div>
   );
 };
 
