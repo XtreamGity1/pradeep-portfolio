@@ -21,12 +21,19 @@ export const profile = {
 // Hero showreel (modal player).
 export const showreel = {};
 
+// Header links, in page order. `compact` items also fit the slim mobile bar at the top of the
+// page; the scrolled mobile menu and the desktop nav show them all.
 export const navItems = [
-  { label: 'Work', href: '#work' },
-  { label: 'About', href: '#about' },
-  { label: 'Services', href: '#services' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Work', href: '#work', compact: true },
+  { label: 'Before & After', href: '#craft' },
+  { label: 'Services', href: '#services', compact: true },
+  { label: 'Pricing', href: '#pricing', compact: true },
+  { label: 'FAQ', href: '#faq' },
+  { label: 'Contact', href: '#contact', compact: true },
 ];
+
+// Desktop header call-to-action; it stands in for the nav item with the same href.
+export const navCta = { label: "Let's talk", href: '#contact' };
 
 export const marquee = [
   'Long-form · Shorts · Reels · TikTok · Podcasts ·',

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
+import { focusRing } from '../ui';
 
 // Styled with Tailwind; keyframes live in src/index.css (@theme --animate-gooey-*).
 const PARTICLE_CLASS =
@@ -11,6 +12,19 @@ const EFFECT_CLASS = 'pointer-events-none absolute z-1 grid place-items-center';
 // opaque black backdrop, so the effect blends cleanly over translucent headers.
 const GOO_FILTER_ID = 'gooey-nav-goo';
 
+const noise = (n = 1) => n / 2 - Math.random() * n;
+const pick = list => list[Math.floor(Math.random() * list.length)];
+const getXY = (distance, pointIndex, totalPoints) => {
+  const angle = ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
+  return [distance * Math.cos(angle), distance * Math.sin(angle)];
+};
+// The particle burst is pure decoration: skip it for people who prefer reduced motion.
+const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+
+// Changes from the React Bits original: optional controlled `activeIndex` (-1 = none, e.g. for a
+// scrollspy) with `onItemClick`, a labelled <nav>, aria-current on the active link, real link
+// activation on Enter, visible focus, 44px tap targets and no particles under reduced motion.
+
 const GooeyNav = ({
   items,
   animationTime = 600,
@@ -19,19 +33,18 @@ const GooeyNav = ({
   particleR = 100,
   timeVariance = 300,
   colors = [1, 2, 3, 1, 2, 3, 1, 4],
-  initialActiveIndex = 0
+  initialActiveIndex = 0,
+  activeIndex: controlledIndex,
+  onItemClick,
+  ariaLabel = 'Primary',
+  listClassName = 'gap-8 px-4'
 }) => {
   const containerRef = useRef(null);
   const navRef = useRef(null);
   const filterRef = useRef(null);
   const textRef = useRef(null);
-  const [activeIndex, setActiveIndex] = useState(initialActiveIndex);
-
-  const noise = (n = 1) => n / 2 - Math.random() * n;
-  const getXY = (distance, pointIndex, totalPoints) => {
-    const angle = ((360 + noise(8)) / totalPoints) * pointIndex * (Math.PI / 180);
-    return [distance * Math.cos(angle), distance * Math.sin(angle)];
-  };
+  const [internalIndex, setInternalIndex] = useState(initialActiveIndex);
+  const activeIndex = controlledIndex ?? internalIndex;
   const createParticle = (i, t, d, r) => {
     let rotate = noise(r / 10);
     return {
@@ -39,7 +52,7 @@ const GooeyNav = ({
       end: getXY(d[1] + noise(7), particleCount - i, particleCount),
       time: t,
       scale: 1 + noise(0.2),
-      color: colors[Math.floor(Math.random() * colors.length)],
+      color: pick(colors),
       rotate: rotate > 0 ? (rotate + r / 20) * 10 : (rotate - r / 20) * 10
     };
   };
@@ -92,12 +105,14 @@ const GooeyNav = ({
     };
     Object.assign(filterRef.current.style, styles);
     Object.assign(textRef.current.style, styles);
-    textRef.current.innerText = element.innerText;
+    textRef.current.textContent = element.textContent;
   };
   const handleClick = (e, index) => {
-    const liEl = e.currentTarget;
+    const liEl = e.currentTarget.parentElement;
+    onItemClick?.(items[index], index);
     if (activeIndex === index) return;
-    setActiveIndex(index);
+    setInternalIndex(index);
+    if (prefersReducedMotion()) return;
     updateEffectPosition(liEl);
     if (filterRef.current) {
       const particles = filterRef.current.querySelectorAll('.particle');
@@ -112,21 +127,17 @@ const GooeyNav = ({
       makeParticles(filterRef.current);
     }
   };
-  const handleKeyDown = (e, index) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      const liEl = e.currentTarget.parentElement;
-      if (liEl) {
-        handleClick({ currentTarget: liEl }, index);
-      }
-    }
-  };
   useEffect(() => {
     if (!navRef.current || !containerRef.current) return;
     const activeLi = navRef.current.querySelectorAll('li')[activeIndex];
     if (activeLi) {
       updateEffectPosition(activeLi);
       textRef.current?.classList.add('active');
+    } else {
+      // Nothing active (e.g. scrolled over a section that isn't in the nav): hide the effects.
+      filterRef.current?.classList.remove('active');
+      textRef.current?.classList.remove('active');
+      if (textRef.current) textRef.current.textContent = '';
     }
     const resizeObserver = new ResizeObserver(() => {
       const currentActiveLi = navRef.current?.querySelectorAll('li')[activeIndex];
@@ -146,10 +157,10 @@ const GooeyNav = ({
           <feColorMatrix in="blur" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" />
         </filter>
       </svg>
-      <nav className="relative flex [transform:translate3d(0,0,0.01px)]">
+      <nav aria-label={ariaLabel} className="relative flex [transform:translate3d(0,0,0.01px)]">
         <ul
           ref={navRef}
-          className="relative z-3 m-0 flex list-none gap-8 p-0 px-4 text-white [text-shadow:0_1px_1px_hsl(205deg_30%_10%/0.2)]"
+          className={`relative z-3 m-0 flex list-none p-0 ${listClassName} text-white [text-shadow:0_1px_1px_hsl(205deg_30%_10%/0.2)]`}
         >
           {items.map((item, index) => (
             <li
@@ -163,8 +174,8 @@ const GooeyNav = ({
               <a
                 onClick={e => handleClick(e, index)}
                 href={item.href}
-                onKeyDown={e => handleKeyDown(e, index)}
-                className="inline-block px-[1em] py-[0.6em] outline-none"
+                aria-current={activeIndex === index ? 'location' : undefined}
+                className={`inline-flex min-h-11 items-center rounded-lg px-[1em] whitespace-nowrap ${focusRing}`}
               >
                 {item.label}
               </a>
@@ -173,10 +184,12 @@ const GooeyNav = ({
         </ul>
       </nav>
       <span
+        aria-hidden="true"
         className={`${EFFECT_CLASS} [filter:url(#gooey-nav-goo)] after:absolute after:inset-0 after:-z-1 after:scale-0 after:rounded-full after:bg-white after:opacity-0 [&.active]:after:animate-gooey-pill`}
         ref={filterRef}
       />
       <span
+        aria-hidden="true"
         className={`${EFFECT_CLASS} text-white transition-colors duration-300 [&.active]:text-black`}
         ref={textRef}
       />

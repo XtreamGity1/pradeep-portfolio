@@ -82,14 +82,34 @@
 }
 
 @layer base {
+  /* Keep in-page anchors clear of the fixed header (h-16, md:h-20). */
   html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 5rem;
+    scroll-padding-top: --spacing(16);
+    @variant md {
+      scroll-padding-top: --spacing(20);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      scroll-behavior: smooth;
+    }
   }
   body {
     @apply bg-ink font-sans text-fg antialiased;
   }
   ::selection {
     @apply bg-accent text-ink;
+  }
+}
+
+/* Reduced-motion safety net: CSS animations and transitions finish instantly (landing on their end
+   state) and anchors jump instead of gliding. JS-driven motion opts out separately (MotionConfig in
+   main.jsx, matchMedia checks in components). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
