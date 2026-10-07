@@ -15,9 +15,17 @@ describe('Footer', () => {
     expect(screen.getByRole('contentinfo')).toHaveTextContent(footer.availability);
   });
 
-  test('links back to the top of the page', () => {
+  test('keeps name, availability and copyright together in one block', () => {
     render(<Footer />);
-    expect(screen.getByRole('link', { name: /back to top/i })).toHaveAttribute('href', '#top');
+    const block = screen.getByText(profile.name).parentElement;
+    expect(block).toHaveTextContent(footer.availability);
+    expect(block).toHaveTextContent(`© ${new Date().getFullYear()}`);
+    expect(block).not.toContainElement(screen.getByRole('navigation', { name: /footer/i }));
+  });
+
+  test('leaves back-to-top to the floating pill', () => {
+    render(<Footer />);
+    expect(screen.queryByRole('link', { name: /back to top/i })).not.toBeInTheDocument();
   });
 
   test('has a footer nav linking to each section in order', () => {
