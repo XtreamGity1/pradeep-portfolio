@@ -28,15 +28,14 @@ Process "You provide" boxes align (row subgrid on lg); placeholder testimonials 
 `Promises` ("What you can count on", section `#promises`); footer has no inner divider.
 Unit tests, lint and build are green. **Don't run e2e in the cloud sandbox** — the user runs
 `yarn test:e2e` on their machine (the sandbox Chromium can't decode H.264 anyway).
-Open question: the River grade comparison should be replaced, but the reel has no other clean
-before/after pair (see "Waiting on the user").
+The River grade before/after was dropped at the user's request (the reel has no other clean pair);
+three comparisons remain: portrait grade, sky replacement, greenscreen.
 
 ## Waiting on the user
 - **Contact details**: the reel's end card shows `hello.pradeepvideo@gmail.com` and `@pradeep_9.k`.
   Site still uses `hello@example.com` / `example.com` placeholders (data.js `profile`, `index.html`).
   Ask before switching — it decides where inquiries go.
 - Real domain for canonical / og:url.
-- What replaces the River grade before/after (no other clean pair exists in the reel).
 - The 8 merged worker worktrees in `.claude/worktrees/` (+ `worktree-agent-*` branches) can be deleted.
 
 ## Media pipeline (ffmpeg — no Swift)

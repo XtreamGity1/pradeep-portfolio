@@ -259,16 +259,6 @@ export const beforeAfter = {
       why: 'The subject now pops from the background and the frame has a mood instead of a camera default.',
     },
     {
-      id: 'grade-river',
-      label: 'River grade',
-      title: 'Hazy morning → teal and clean',
-      project: 'From my 2026 showreel · River boat',
-      before: { label: 'Log', src: '/media/reel/ba-river-before.jpg', alt: 'Ungraded river scene: a wooden boat on washed-out grey water' },
-      after: { label: 'Graded', src: '/media/reel/ba-river-after.jpg', alt: 'The same scene graded: a teal boat on cool, clear water' },
-      changed: 'Cut through the haze, cooled the water and brought out the teal of the boat.',
-      why: 'The eye goes straight to the boat and its passengers instead of getting lost in grey.',
-    },
-    {
       id: 'sky',
       label: 'Sky replacement',
       title: 'Empty sky → dramatic clouds',
