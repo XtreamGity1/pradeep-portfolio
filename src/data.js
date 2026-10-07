@@ -1,11 +1,11 @@
 // All portfolio content lives here — edit this file to personalize the site.
 
-// Identity. PLACEHOLDER: location and email — replace with your own.
+// Identity. PLACEHOLDER: location — replace with your own.
 export const profile = {
   name: 'Pradeep Vangoori',
   initials: 'PV',
   location: 'Based in Los Angeles · Editing remotely',
-  email: 'hello@example.com',
+  email: 'hello.pradeepvideo@gmail.com',
   roles: ['YouTube videos', 'Shorts', 'Reels', 'podcast clips', 'vlogs'],
   tagline:
     'Video editor for YouTube creators and short-form — turning raw footage into videos people want to finish.',
