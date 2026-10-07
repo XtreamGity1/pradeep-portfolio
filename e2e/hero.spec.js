@@ -99,7 +99,7 @@ test('the now-showing label follows the background video’s playhead', async ({
   }
 });
 
-test('the now-showing label fits the viewport and stays clear of the hero content', async ({ page }) => {
+test('the now-showing badge fits the viewport and stays clear of the other hero content', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready);
   const label = await page.getByTestId('hero-now-showing').boundingBox();
   const { width } = page.viewportSize();
@@ -114,7 +114,6 @@ test('the now-showing label fits the viewport and stays clear of the hero conten
     hero(page).getByRole('link', { name: 'View my work' }),
     hero(page).getByRole('link', { name: 'Get in touch' }),
     hero(page).getByRole('link', { name: /scroll/i }),
-    hero(page).getByText('Available for new projects'),
   ];
   for (const other of others) {
     if (!(await other.isVisible())) continue;

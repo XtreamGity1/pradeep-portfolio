@@ -32,9 +32,10 @@ describe('Hero', () => {
     expect(screen.getByRole('heading', { level: 1, name: profile.name })).toBeInTheDocument();
   });
 
-  test('shows availability badge, rotating role and tagline', () => {
+  test('shows the now-showing badge, rotating role and tagline', () => {
     const { container } = render(<Hero />);
-    expect(screen.getByText('Available for new projects')).toBeInTheDocument();
+    expect(screen.queryByText('Available for new projects')).not.toBeInTheDocument();
+    expect(screen.getByTestId('hero-now-showing')).toBeInTheDocument();
     expect(screen.getByText(/I edit/)).toBeInTheDocument();
     expect(screen.getByText(profile.roles[0])).toBeInTheDocument();
     const text = container.textContent.replace(/ /g, ' ');
@@ -86,7 +87,7 @@ describe('Hero', () => {
     expect(still).toHaveAttribute('alt', '');
   });
 
-  describe('now-showing label', () => {
+  describe('now-showing badge', () => {
     const label = container => container.querySelector('[data-testid="hero-now-showing"]');
     // Move the background loop's playhead to `time` seconds (loop time, not reel time).
     const seek = (video, time) => {
@@ -97,7 +98,12 @@ describe('Hero', () => {
     test('names the technique the background video is showing, in sync with its time', () => {
       const { container } = render(<Hero />);
       const video = container.querySelector('video');
+      // Decorative: it mirrors the muted background video.
       expect(label(container).closest('[aria-hidden="true"]')).not.toBeNull();
+      // Sits above the headline, where the eye lands first.
+      expect(label(container).compareDocumentPosition(screen.getByRole('heading', { level: 1 }))).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
 
       for (const chapter of reelChapters.filter(c => c.start >= heroVideo.offset)) {
         seek(video, (chapter.start + chapter.end) / 2 - heroVideo.offset);
@@ -105,12 +111,14 @@ describe('Hero', () => {
       }
     });
 
-    test('hides between chapters', () => {
+    test('keeps the last technique between chapters instead of flickering', () => {
       const { container } = render(<Hero />);
       const video = container.querySelector('video');
       const gap = reelChapters.findIndex((c, i) => i > 0 && c.start > reelChapters[i - 1].end);
-      seek(video, (reelChapters[gap - 1].end + reelChapters[gap].start) / 2 - heroVideo.offset);
-      expect(label(container)).toBeNull();
+      const before = reelChapters[gap - 1];
+      seek(video, (before.start + before.end) / 2 - heroVideo.offset);
+      seek(video, (before.end + reelChapters[gap].start) / 2 - heroVideo.offset);
+      expect(label(container)).toHaveTextContent(`Now showing · ${before.label}`);
     });
 
     test('names the poster’s technique when motion is reduced', () => {
