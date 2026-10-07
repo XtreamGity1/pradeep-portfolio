@@ -34,14 +34,17 @@ describe('About', () => {
     expect(screen.getByText(profile.location)).toBeInTheDocument();
   });
 
-  test('shows a lazy-loaded portrait with alt text and intrinsic size', () => {
+  test('shows a lazy-loaded still from the reel with alt text, intrinsic size and caption', () => {
     render(<About />);
-    const { portrait } = aboutDetails;
-    const img = screen.getByRole('img', { name: portrait.alt });
-    expect(img).toHaveAttribute('src', portrait.src);
+    const { image } = aboutDetails;
+    const img = screen.getByRole('img', { name: image.alt });
+    // Pradeep's own footage, not a stock placeholder.
+    expect(image.src).toMatch(/^\/media\/reel\//);
+    expect(img).toHaveAttribute('src', image.src);
     expect(img).toHaveAttribute('loading', 'lazy');
-    expect(img).toHaveAttribute('width', String(portrait.width));
-    expect(img).toHaveAttribute('height', String(portrait.height));
+    expect(img).toHaveAttribute('width', String(image.width));
+    expect(img).toHaveAttribute('height', String(image.height));
+    expect(img.closest('figure')).toHaveTextContent(image.caption);
   });
 
   test('lists every editing principle under a "How I cut" heading', () => {

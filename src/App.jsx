@@ -7,7 +7,7 @@ import BeforeAfter from './sections/BeforeAfter';
 import Services from './sections/Services';
 import Pricing from './sections/Pricing';
 import Process from './sections/Process';
-import Testimonials from './sections/Testimonials';
+import Promises from './sections/Promises';
 import FAQ from './sections/FAQ';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
@@ -26,7 +26,7 @@ export default function App() {
         <Services />
         <Pricing />
         <Process />
-        <Testimonials />
+        <Promises />
         <FAQ />
         <Contact />
       </main>

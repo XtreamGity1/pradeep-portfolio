@@ -86,14 +86,17 @@ export const stats = [
   { value: 8, suffix: '', label: 'Tools in the kit' },
 ];
 
-// About section: portrait, "how I cut" principles and platform row.
+// About section: a still from the reel, "how I cut" principles and platform row.
 export const aboutDetails = {
-  // PLACEHOLDER photo — swap for your own (e.g. '/portrait.jpg' in /public) and keep the alt accurate.
-  portrait: {
-    src: 'https://picsum.photos/seed/editor-portrait/800/1000',
-    alt: `Portrait of ${profile.name} at his editing desk`,
-    width: 800,
-    height: 1000,
+  // Still from the reel's long-form segment (media-src/Hero.MP4 at 0:36.9, letterbox cropped).
+  // `position` keeps her face in frame when the 20:9 still is cropped to portrait.
+  image: {
+    src: '/media/reel/about-podcast.jpg',
+    alt: 'A podcast host in headphones smiling at a red microphone in a sound-treated studio',
+    width: 1920,
+    height: 864,
+    position: 'object-[40%_50%]',
+    caption: 'From my 2026 showreel · Podcast',
   },
   principlesTitle: 'How I cut',
   platformsTitle: 'Platforms I edit for',
@@ -256,16 +259,6 @@ export const beforeAfter = {
       why: 'The subject now pops from the background and the frame has a mood instead of a camera default.',
     },
     {
-      id: 'grade-river',
-      label: 'River grade',
-      title: 'Hazy morning → teal and clean',
-      project: 'From my 2026 showreel · River boat',
-      before: { label: 'Log', src: '/media/reel/ba-river-before.jpg', alt: 'Ungraded river scene: a wooden boat on washed-out grey water' },
-      after: { label: 'Graded', src: '/media/reel/ba-river-after.jpg', alt: 'The same scene graded: a teal boat on cool, clear water' },
-      changed: 'Cut through the haze, cooled the water and brought out the teal of the boat.',
-      why: 'The eye goes straight to the boat and its passengers instead of getting lost in grey.',
-    },
-    {
       id: 'sky',
       label: 'Sky replacement',
       title: 'Empty sky → dramatic clouds',
@@ -425,29 +418,24 @@ export const tools = [
   'Frame.io',
 ];
 
-// PLACEHOLDER QUOTES — replace every entry with a real quote (and real name/role) before launch.
-// Leave the array empty to hide the testimonials section entirely.
-export const testimonials = [
+// "What you can count on": commitments in place of testimonials until there are real client quotes.
+// Each one restates a promise made elsewhere on the page (test edit, FAQ, process), so keep them in sync.
+export const promises = [
   {
-    // PLACEHOLDER — replace with a real quote.
-    quote:
-      'Pradeep re-cut my first ten videos and the difference was obvious — tighter intros, no dead air, and people actually stuck around to the end.',
-    name: 'Sam Patel',
-    role: 'Friend & small YouTube channel',
+    title: 'Try before you pay',
+    body: 'A free 60-second test edit from your own footage, so you judge the hook, pacing and style first.',
   },
   {
-    // PLACEHOLDER — replace with a real quote.
-    quote:
-      'He edited our student short in a week and found a better ending in the footage than the one we had scripted.',
-    name: 'Maya Chen',
-    role: 'Director, film school short',
+    title: 'Fast, predictable turnaround',
+    body: 'Shorts back within 48 hours; a long-form first cut inside 72. Bigger projects get a date we agree upfront.',
   },
   {
-    // PLACEHOLDER — replace with a real quote.
-    quote:
-      'Quick replies, clear timelines and Reels that finally look like us. Easy to work with from the first message.',
-    name: 'Luis Ortega',
-    role: 'Owner, local café',
+    title: 'Replies within a day',
+    body: 'A small client list means your project gets real attention and your messages never sit for long.',
+  },
+  {
+    title: 'Yours, and safe to upload',
+    body: 'You own the exports and the project file, and every track and effect is properly licensed.',
   },
 ];
 

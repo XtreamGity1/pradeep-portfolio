@@ -4,7 +4,7 @@ const LG_BREAKPOINT = 1024;
 const MD_BREAKPOINT = 768;
 
 const about = page => page.locator('#about');
-const portrait = page => about(page).getByRole('img', { name: /portrait of/i });
+const portrait = page => about(page).getByRole('figure').getByRole('img');
 const statCards = page => about(page).locator('dl > div');
 const width = page => page.viewportSize().width;
 

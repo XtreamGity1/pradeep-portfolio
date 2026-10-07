@@ -52,20 +52,32 @@ test.describe('process timeline', () => {
       await expect(step.getByText(/you provide/i)).toBeVisible();
     }
   });
+
+  test('on laptops the "You provide" boxes line up in one row at equal height', async ({ page }) => {
+    test.skip(!isWide(page), 'side-by-side layout only');
+    const list = page.getByRole('list', { name: /process/i });
+    await list.scrollIntoViewIfNeeded();
+    await page.evaluate(() => document.fonts.ready);
+    const boxes = await list.locator('dl').evaluateAll(els => els.map(el => el.getBoundingClientRect().toJSON()));
+    expect(boxes).toHaveLength(4);
+    for (const box of boxes.slice(1)) {
+      expect(Math.abs(box.top - boxes[0].top), 'boxes share a top edge').toBeLessThan(1);
+      expect(Math.abs(box.height - boxes[0].height), 'boxes share a height').toBeLessThan(1);
+    }
+  });
 });
 
-test.describe('testimonials', () => {
-  test('every quote is visible inside the viewport without page overflow', async ({ page }) => {
-    const section = page.locator('#testimonials');
+test.describe('promises', () => {
+  test('every promise is visible inside the viewport without page overflow', async ({ page }) => {
+    const section = page.locator('#promises');
     await section.scrollIntoViewIfNeeded();
-    const figures = section.locator('figure');
-    expect(await figures.count()).toBeGreaterThanOrEqual(2);
-    for (const figure of await figures.all()) {
-      await figure.scrollIntoViewIfNeeded();
-      await expect(figure.locator('blockquote')).toBeVisible();
-      await expect(figure.locator('figcaption')).toBeVisible();
+    const items = section.getByRole('list', { name: 'Promises' }).getByRole('listitem');
+    expect(await items.count()).toBeGreaterThanOrEqual(3);
+    for (const item of await items.all()) {
+      await item.scrollIntoViewIfNeeded();
+      await expect(item.getByRole('heading', { level: 3 })).toBeVisible();
     }
-    await expectWithinViewport(page, figures);
+    await expectWithinViewport(page, items);
     await expectNoHorizontalOverflow(page);
   });
 });

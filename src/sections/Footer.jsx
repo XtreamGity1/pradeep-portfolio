@@ -6,6 +6,7 @@ const YEAR = new Date().getFullYear();
 
 const linkClass = `inline-flex min-h-11 items-center rounded-sm text-sm text-muted transition-colors duration-300 hover:text-fg ${focusRing}`;
 
+// One block, no inner divider: brand + nav, then socials and the copyright line beneath them.
 export default function Footer() {
   return (
     <footer className="border-t border-line px-4 py-8 sm:px-6 md:py-12">
@@ -34,7 +35,7 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-4 flex flex-col border-t border-line pt-2 sm:flex-row-reverse sm:items-center sm:justify-between md:mt-8 md:pt-4">
+        <div className="mt-2 flex flex-col sm:mt-6 sm:flex-row-reverse sm:items-center sm:justify-between md:mt-8">
           <ul aria-label="Social profiles" className="flex flex-wrap gap-x-5 sm:gap-x-6">
             {profile.socials.map(social => (
               <li key={social.label}>
@@ -46,7 +47,7 @@ export default function Footer() {
           </ul>
 
           <div className="flex items-center justify-between gap-6 text-sm text-muted">
-            <p>
+            <p className="text-xs">
               &copy; {YEAR} {profile.name}
             </p>
             <a href="#top" className={`group gap-2 ${linkClass}`}>

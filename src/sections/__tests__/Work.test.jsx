@@ -44,6 +44,8 @@ describe('Work', () => {
       expect(card.getByText(edit.group)).toBeInTheDocument();
       expect(card.getByText(edit.summary)).toBeInTheDocument();
       expect(item.querySelector('img')).toHaveAttribute('src', edit.image);
+      // Below the fold: stills load only as the grid nears the viewport.
+      expect(item.querySelector('img')).toHaveAttribute('loading', 'lazy');
     }
   });
 
@@ -146,6 +148,24 @@ describe('Work', () => {
       fireEvent.keyDown(document, { key: 'Escape' });
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(document.body.style.overflow).toBe('');
+      expect(cardButton(edit)).toHaveFocus();
+    });
+
+    test('Tab treats the video as one stop, and Escape closes it from there', () => {
+      render(<Work />);
+      const dialog = openEdit(edit);
+      const video = dialog.querySelector('video');
+      video.tabIndex = 0; // jsdom only lets a <video> take focus with a tabindex
+      // Focus never enters the player's native controls, where Chrome stops passing keys to the page.
+      fireEvent.keyDown(document, { key: 'Tab' });
+      expect(video).toHaveFocus();
+      fireEvent.keyDown(document, { key: 'Tab' });
+      expect(within(dialog).getByRole('button', { name: /^previous/i })).toHaveFocus();
+      fireEvent.keyDown(document, { key: 'Tab', shiftKey: true });
+      expect(video).toHaveFocus();
+
+      fireEvent.keyDown(video, { key: 'Escape' });
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
       expect(cardButton(edit)).toHaveFocus();
     });
 

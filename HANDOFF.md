@@ -21,11 +21,15 @@ yarn test:e2e e2e/work.spec.js --project=laptop   # one spec / one device
 Don't run several full e2e suites at once — the machine saturates and tests time out spuriously.
 
 ## State at handoff
-Steps 1–4 below are done (Work technique showcase, real before/after stills in a 20:9 slider, hero
-"Now showing" chip synced to the background video, navbar `h-14 md:h-16`). Unit tests, lint and build
-are green. E2E passes in the cloud sandbox except the hero video tests: its Chromium can't decode H.264,
-so `e2e/hero.spec.js` (video + now-showing playhead) must be confirmed on a machine with real Chrome.
-Remaining: full `yarn test:e2e` on device, visual check at 375 / 820 / 1440.
+Done and merged: Work technique showcase, real before/after stills in a 20:9 slider, slimmer navbar.
+Since then (branch `claude/inspiring-pasteur-b9jp9o`): lazy, re-encoded Work stills; the hero badge
+is now "Now showing · <technique>" (`src/sections/hero/NowShowing.jsx`); About uses a reel still;
+Process "You provide" boxes align (row subgrid on lg); placeholder testimonials replaced by
+`Promises` ("What you can count on", section `#promises`); footer has no inner divider.
+Unit tests, lint and build are green. **Don't run e2e in the cloud sandbox** — the user runs
+`yarn test:e2e` on their machine (the sandbox Chromium can't decode H.264 anyway).
+The River grade before/after was dropped at the user's request (the reel has no other clean pair);
+three comparisons remain: portrait grade, sky replacement, greenscreen.
 
 ## Waiting on the user
 - **Contact details**: the reel's end card shows `hello.pradeepvideo@gmail.com` and `@pradeep_9.k`.
@@ -34,16 +38,20 @@ Remaining: full `yarn test:e2e` on device, visual check at 375 / 820 / 1440.
 - Real domain for canonical / og:url.
 - The 8 merged worker worktrees in `.claude/worktrees/` (+ `worktree-agent-*` branches) can be deleted.
 
-## Media pipeline (no ffmpeg on this Mac; macOS AVFoundation via Swift)
+## Media pipeline (ffmpeg — no Swift)
 Source: `media-src/Hero.MP4` (105 MB, 1920×1080, 42 s; **git-ignored** — too big for git/GitHub).
-Picture area is rows 108–971 (letterbox bars above/below; technique labels sit in the bottom bar).
-Compile a tool with `swiftc -O tools/video/<name>.swift -o /tmp/<name>`:
-- `transcode <in> <out> <w> <h> <bps> <audio 0|1> [start dur]` — H.264(+AAC), faststart.
-  `public/media/hero-loop.mp4` = `1280 720 1200000 0 7.5 30`; `hero-reel.mp4` = `1920 1080 4000000 1`.
-- `still <in> <outDir> <width> name=seconds…` — letterbox-cropped JPEG stills; `--bars <t>` measures bars.
-- `sheet <in> <out.jpg> <start> <end> <step> <cols> <cellW> [crop x y w h]` — timestamped contact sheet.
-- `cuts <in>` — prints frame-accurate times when the bottom-right label changes.
-- `montage <out.jpg> <cols> <cellW> <img>…` — side-by-side review of stills.
+`public/media/hero-reel.mp4` is the same reel at 1080p and works as a source too. Picture area is
+rows 108–971 (letterbox bars above/below; technique labels sit in the bottom bar), so crop with
+`crop=1920:864:0:108`.
+```sh
+# Web encodes (H.264 + AAC, faststart)
+ffmpeg -i media-src/Hero.MP4 -c:v libx264 -b:v 4M -c:a aac -movflags +faststart public/media/hero-reel.mp4
+ffmpeg -ss 7.5 -t 30 -i media-src/Hero.MP4 -vf scale=1280:720 -c:v libx264 -b:v 1.2M -an -movflags +faststart public/media/hero-loop.mp4
+# Letterbox-cropped still at <seconds> (scale=1600:-1 for before/after, 1280:-1 for Work cards)
+ffmpeg -ss <seconds> -i media-src/Hero.MP4 -frames:v 1 -vf "crop=1920:864:0:108,scale=1600:-1" -q:v 4 out.jpg
+# Timestamped contact sheet: 30 frames, one per second from 0:07.5
+ffmpeg -ss 7.5 -t 30 -i media-src/Hero.MP4 -vf "fps=1,crop=1920:864:0:108,scale=384:-1,drawtext=text='%{pts\:hms}':x=6:y=6:fontsize=20:fontcolor=yellow:box=1:boxcolor=black,tile=5x6" -frames:v 1 sheet.jpg
+```
 
 ## Gotchas learned this session
 - Smooth scrolling (`scroll-behavior: smooth`) makes e2e measurements flaky: wait for scroll to settle,

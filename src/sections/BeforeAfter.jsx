@@ -29,6 +29,7 @@ function ComparisonTabs({ active, onSelect }) {
     tabs.current[index].focus();
   };
 
+  // Two columns on phones (an odd last tab spans both); a wrapping row from sm.
   return (
     <div
       role="tablist"
@@ -49,7 +50,7 @@ function ComparisonTabs({ active, onSelect }) {
             aria-controls={PANEL_ID}
             tabIndex={selected ? 0 : -1}
             onClick={() => onSelect(i)}
-            className={`min-h-11 rounded-full border px-4 text-sm font-medium transition-colors duration-300 sm:px-5 ${focusRing} ${
+            className={`min-h-11 rounded-full border px-4 text-sm font-medium transition-colors duration-300 odd:last:col-span-2 sm:px-5 ${focusRing} ${
               selected ? 'border-fg bg-fg text-ink' : 'border-line text-muted hover:border-fg/40 hover:text-fg'
             }`}
           >
