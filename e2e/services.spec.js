@@ -5,8 +5,14 @@ const LG_BREAKPOINT = 1024;
 
 const viewportWidth = page => page.viewportSize().width;
 
+// One synchronous read, so a late layout shift (fonts, images) can't skew one card against another.
 async function boxes(locator) {
-  return Promise.all((await locator.all()).map(el => el.boundingBox()));
+  return locator.evaluateAll(els =>
+    els.map(el => {
+      const { x, y, width, height } = el.getBoundingClientRect();
+      return { x, y, width, height };
+    }),
+  );
 }
 
 test.beforeEach(async ({ page }) => {

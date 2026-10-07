@@ -7,6 +7,8 @@ const vertical = projects.find(p => p.orientation === 'vertical');
 const work = page => page.locator('#work');
 const filterGroup = page => page.getByRole('group', { name: /filter projects by format/i });
 const cardButton = (page, project) => work(page).getByRole('button', { name: project.title, exact: true });
+// `filter({ has })` resolves relative to each matched item, so it must not re-scope to #work.
+const hasCard = (page, project) => page.getByRole('button', { name: project.title, exact: true });
 
 async function expectNoHorizontalOverflow(page) {
   const { scrollWidth, innerWidth } = await page.evaluate(() => ({
@@ -23,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 
 test('cards show title, type and focus without hover', async ({ page }) => {
   for (const project of projects) {
-    const item = work(page).getByRole('listitem').filter({ has: cardButton(page, project) });
+    const item = work(page).getByRole('listitem').filter({ has: hasCard(page, project) });
     await expect(item.getByRole('heading', { level: 3, name: project.title })).toBeVisible();
     await expect(item.getByText(project.type, { exact: true })).toBeVisible();
     await expect(item.getByText(project.focus, { exact: true })).toBeVisible();
@@ -31,7 +33,7 @@ test('cards show title, type and focus without hover', async ({ page }) => {
 });
 
 test('vertical projects get tall cards and the grid has no gaps', async ({ page }) => {
-  const box = await work(page).getByRole('listitem').filter({ has: cardButton(page, vertical) }).boundingBox();
+  const box = await work(page).getByRole('listitem').filter({ has: hasCard(page, vertical) }).boundingBox();
   expect(box.height).toBeGreaterThan(box.width);
 
   // Every row of the grid is filled edge to edge: the cells' total area equals the grid's area.
@@ -108,16 +110,20 @@ test('tap a card, browse to the next case study, close from the backdrop', async
   await expect(dialog).toHaveAccessibleName(projects[0].title);
   await expectNoHorizontalOverflow(page);
 
-  const close = dialog.getByRole('button', { name: 'Close case study' });
-  const closeBox = await close.boundingBox();
-  expect(closeBox.width).toBeGreaterThanOrEqual(44);
-  expect(closeBox.height).toBeGreaterThanOrEqual(44);
-
-  const panel = await dialog.boundingBox();
+  // The panel slides up as it opens; measure once it has settled.
   const viewport = page.viewportSize();
+  await expect.poll(async () => {
+    const box = await dialog.boundingBox();
+    return box.y + box.height;
+  }).toBeLessThanOrEqual(viewport.height + 1);
+  const panel = await dialog.boundingBox();
   expect(panel.x).toBeGreaterThanOrEqual(0);
   expect(panel.x + panel.width).toBeLessThanOrEqual(viewport.width);
-  expect(panel.y + panel.height).toBeLessThanOrEqual(viewport.height + 1);
+
+  const closeBox = await dialog.getByRole('button', { name: 'Close case study' }).boundingBox();
+  // Sub-pixel tolerance: a fractional transform can report 43.99999px for a 44px box.
+  expect(closeBox.width).toBeGreaterThanOrEqual(43.5);
+  expect(closeBox.height).toBeGreaterThanOrEqual(43.5);
 
   await dialog.getByRole('button', { name: /^next/i }).click();
   await expect(dialog).toHaveAccessibleName(projects[1].title);

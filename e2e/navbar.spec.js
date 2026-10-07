@@ -17,7 +17,8 @@ async function waitForScrollEnd(page) {
 }
 
 async function openMenu(page) {
-  await page.evaluate(() => window.scrollTo(0, 600));
+  // The hamburger only appears once scrolled; don't move away from a section a test scrolled to.
+  await page.evaluate(() => window.scrollY < 600 && window.scrollTo(0, 600));
   const button = page.getByRole('button', { name: 'Open menu' });
   await button.click();
   const menu = page.getByRole('dialog', { name: 'Site menu' });
@@ -72,11 +73,16 @@ test.describe('header layout', () => {
     }
     expect(Math.max(...centers) - Math.min(...centers), 'links share one row').toBeLessThan(4);
     const headerBox = await header.boundingBox();
-    expect(headerBox.height).toBeLessThanOrEqual(80);
+    // 80px bar + 1px bottom border.
+    expect(headerBox.height).toBeLessThanOrEqual(81);
   });
 });
 
 test.describe('anchors', () => {
+  // Landing position is what's under test; jump instead of smooth-scrolling ~17k px per link
+  // (smooth scrolling itself is covered in 'motion').
+  test.use({ reducedMotion: 'reduce' });
+
   test('nav links land each section below the fixed header', async ({ page }) => {
     for (const item of navItems.filter(item => item.href !== '#contact')) {
       await page.evaluate(() => window.scrollTo(0, 0));
@@ -119,6 +125,10 @@ test.describe('scrollspy', () => {
 });
 
 test.describe('mobile menu', () => {
+  // Landing position is what's under test; jump instead of smooth-scrolling ~17k px per link
+  // (smooth scrolling itself is covered in 'motion').
+  test.use({ reducedMotion: 'reduce' });
+
   test.beforeEach(({ page }) => {
     test.skip(!isNarrow(page), 'mobile-only behaviour');
   });
