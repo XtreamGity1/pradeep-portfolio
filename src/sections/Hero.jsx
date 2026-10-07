@@ -1,22 +1,49 @@
+import { useRef, useState } from 'react';
 import Aurora from '../components/Aurora/Aurora';
 import SplitText from '../components/SplitText/SplitText';
 import RotatingText from '../components/RotatingText/RotatingText';
 import BlurText from '../components/BlurText/BlurText';
 import ShinyText from '../components/ShinyText/ShinyText';
 import Magnet from '../components/Magnet/Magnet';
+import ShowreelModal from '../components/ShowreelModal/ShowreelModal';
 import { Button, Eyebrow, Pill, focusRing } from '../components/ui';
-import { profile } from '../data';
+import useMediaQuery from '../hooks/useMediaQuery';
+import { profile, showreel } from '../data';
 
 const AURORA_COLORS = ['#8b5cf6', '#ff4d6d', '#ffb86b'];
+// Fixed Aurora frame shown instead of the animation when motion is reduced.
+const STILL_AURORA_TIME = 40;
+const ROLE_TRANSITION = { type: 'spring', damping: 30, stiffness: 400 };
 
+// The showreel button leads; these follow as secondary links.
 const CTAS = [
-  { label: 'View my work', href: '#work', variant: 'primary' },
+  { label: 'View my work', href: '#work', variant: 'ghost' },
   { label: 'Get in touch', href: '#contact', variant: 'ghost' },
 ];
 // Equal full-width buttons when stacked on phones; content-sized in a row from sm.
 const CTA_CLASS = 'w-full justify-center sm:w-auto';
+// Same pill + primary colors as <Button>; the play disc plus py-1 keeps the height equal to it.
+const SHOWREEL_CLASS =
+  'group inline-flex items-center gap-3 rounded-full border border-transparent bg-fg py-1 pr-6 pl-1 text-sm font-semibold text-ink transition-colors duration-300 hover:bg-accent';
+
+function PlayIcon() {
+  return (
+    <span
+      aria-hidden="true"
+      className="grid size-9 shrink-0 place-items-center rounded-full bg-accent text-ink transition-colors duration-300 group-hover:bg-ink group-hover:text-accent"
+    >
+      <svg viewBox="0 0 24 24" className="ml-0.5 size-4" fill="currentColor">
+        <path d="M8 5.5v13a1 1 0 0 0 1.5.86l11-6.5a1 1 0 0 0 0-1.72l-11-6.5A1 1 0 0 0 8 5.5Z" />
+      </svg>
+    </span>
+  );
+}
 
 export default function Hero() {
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  const [reelOpen, setReelOpen] = useState(false);
+  const reelButtonRef = useRef(null);
+
   return (
     <section
       id="top"
@@ -25,7 +52,12 @@ export default function Hero() {
       {/* Decorative background: aurora + fade into the page. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 opacity-70">
-          <Aurora colorStops={AURORA_COLORS} amplitude={1} blend={0.5} />
+          <Aurora
+            colorStops={AURORA_COLORS}
+            amplitude={1}
+            blend={0.5}
+            time={reducedMotion ? STILL_AURORA_TIME : undefined}
+          />
         </div>
         <div className="absolute inset-0 bg-linear-to-b from-ink/20 via-ink/40 to-ink" />
       </div>
@@ -37,7 +69,13 @@ export default function Hero() {
               <span className="absolute inline-flex size-full rounded-full bg-accent opacity-75 motion-safe:animate-ping" />
               <span className="relative inline-flex size-2 rounded-full bg-accent" />
             </span>
-            <ShinyText text="Available for new projects" speed={3} color="#9a9aa6" shineColor="#f4f4f6" />
+            <ShinyText
+              text="Available for new projects"
+              speed={3}
+              color="#9a9aa6"
+              shineColor="#f4f4f6"
+              disabled={reducedMotion}
+            />
           </span>
         </Pill>
 
@@ -63,7 +101,8 @@ export default function Hero() {
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '-120%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 400 }}
+            // Reduced motion: roles swap in place instead of sliding.
+            transition={reducedMotion ? { duration: 0 } : ROLE_TRANSITION}
           />
         </p>
 
@@ -76,8 +115,22 @@ export default function Hero() {
         />
 
         <div className="mt-10 flex w-full max-w-xs flex-col gap-4 sm:w-auto sm:max-w-none sm:flex-row">
+          <Magnet padding={60} magnetStrength={4} disabled={reducedMotion}>
+            <button
+              ref={reelButtonRef}
+              type="button"
+              aria-haspopup="dialog"
+              aria-expanded={reelOpen}
+              onClick={() => setReelOpen(true)}
+              className={`${SHOWREEL_CLASS} ${focusRing} ${CTA_CLASS}`}
+            >
+              <PlayIcon />
+              {showreel.cta}
+              <span className="font-mono text-xs font-normal text-ink/60">{showreel.duration}</span>
+            </button>
+          </Magnet>
           {CTAS.map(cta => (
-            <Magnet key={cta.href} padding={60} magnetStrength={4}>
+            <Magnet key={cta.href} padding={60} magnetStrength={4} disabled={reducedMotion}>
               <Button href={cta.href} variant={cta.variant} className={CTA_CLASS}>
                 {cta.label}
               </Button>
@@ -95,6 +148,13 @@ export default function Hero() {
         </Eyebrow>
         <span aria-hidden="true" className="h-8 w-px bg-linear-to-b from-current to-transparent motion-safe:animate-pulse" />
       </a>
+
+      <ShowreelModal
+        open={reelOpen}
+        reel={showreel}
+        onClose={() => setReelOpen(false)}
+        returnFocusRef={reelButtonRef}
+      />
     </section>
   );
 }
