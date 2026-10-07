@@ -486,8 +486,12 @@ export const faqs = [
   },
 ];
 
-// Contact form: options and copy. Submitting opens a pre-filled email to profile.email.
+// Contact form: options and copy. With a Web3Forms access key the form emails profile.email directly
+// (free, 250 a month); without one it opens a pre-filled draft in the visitor's email app instead.
 export const inquiry = {
+  // Get a free key at https://web3forms.com (enter profile.email; the key arrives in that inbox).
+  // It is safe to publish: it can only send to that inbox.
+  web3formsKey: '',
   title: 'Tell me about your video',
   intro: 'A few quick details and I’ll come back with ideas, a quote and a turnaround — usually the same day.',
   projectTypes: ['YouTube long-form', 'Shorts / Reels / TikTok', 'Podcast clips', 'Personal / event video', 'Other'],
@@ -499,6 +503,17 @@ export const inquiry = {
   detailsLabel: 'Add budget, timeline or a footage link',
   testEdit: { label: 'I’d like a free test edit first' },
   submitLabel: 'Send project details',
+  sendingLabel: 'Sending…',
+  // Sent straight to the inbox.
+  sent: {
+    title: 'Message sent — thank you!',
+    body: 'It’s in my inbox. I’ll reply to your email within 24 hours — can’t wait to see your footage.',
+  },
+  failed: {
+    message: 'That didn’t go through — check your connection and try again, or',
+    fallback: 'send it from your email app',
+  },
+  // Fallback (no access key): the visitor's email app opens a draft.
   success: {
     title: 'Your email is ready to send.',
     body: 'Your email app should have opened with everything filled in — just hit send and I’ll reply within 24 hours. Can’t wait to see your footage.',

@@ -10,19 +10,24 @@ export function buildMailto(to, { subject, body } = {}) {
   return `mailto:${to}${params.length ? `?${params.join('&')}` : ''}`;
 }
 
-// Composes the contact form into a ready-to-send email draft.
-export function buildInquiryMailto(to, values, { recipient } = {}) {
-  const name = values.name.trim();
+export const inquirySubject = values => `Project inquiry: ${values.projectType} — ${values.name.trim()}`;
+
+// The filled-in optional details as [label, value] pairs; shared by the draft and the sent email.
+export function inquiryDetails(values) {
   const footage = values.footage.trim() && (normalizeUrl(values.footage) ?? values.footage.trim());
-  const details = [
+  return [
     ['Project type', values.projectType],
     ['Budget', values.budget.trim()],
     ['Timeline', values.timeline.trim()],
     ['Footage', footage],
     ['Free test edit', values.testEdit && 'Yes, please'],
-  ]
-    .filter(([, value]) => value)
-    .map(([label, value]) => `${label}: ${value}`);
+  ].filter(([, value]) => value);
+}
+
+// Composes the contact form into a ready-to-send email draft.
+export function buildInquiryMailto(to, values, { recipient } = {}) {
+  const name = values.name.trim();
+  const details = inquiryDetails(values).map(([label, value]) => `${label}: ${value}`);
 
   const body = [
     ...(recipient ? [`Hi ${recipient},`, ''] : []),
@@ -34,5 +39,5 @@ export function buildInquiryMailto(to, values, { recipient } = {}) {
     values.email.trim(),
   ].join('\n');
 
-  return buildMailto(to, { subject: `Project inquiry: ${values.projectType} — ${name}`, body });
+  return buildMailto(to, { subject: inquirySubject(values), body });
 }

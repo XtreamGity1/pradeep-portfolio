@@ -32,6 +32,9 @@ The River grade before/after was dropped at the user's request (the reel has no 
 three comparisons remain: portrait grade, sky replacement, greenscreen.
 
 ## Waiting on the user
+- **Contact form key**: paste a free Web3Forms access key (web3forms.com, made for
+  `hello.pradeepvideo@gmail.com`) into `inquiry.web3formsKey` in `src/data.js`. Until then the form
+  falls back to opening an email draft. e2e mocks Web3Forms, so tests never email the inbox.
 - **Contact details**: email is `hello.pradeepvideo@gmail.com` (user confirmed). The reel also shows
   `@pradeep_9.k`; ask before adding it.
 - Real domain for canonical / og:url / JSON-LD url in `index.html` (still `example.com`).

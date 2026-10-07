@@ -1,12 +1,21 @@
 import { test, expect } from '@playwright/test';
-import { profile } from '../src/data.js';
+import { inquiry, profile } from '../src/data.js';
 
 const LG_BREAKPOINT = 1024;
+
+const WEB3FORMS = 'https://api.web3forms.com/submit';
+const sendsDirectly = Boolean(inquiry.web3formsKey);
 
 test.beforeEach(async ({ page }) => {
   const errors = [];
   page.on('pageerror', err => errors.push(err.message));
   page.errors = errors;
+  // Never email the real inbox from tests: answer Web3Forms locally and record what was sent.
+  page.sent = [];
+  await page.route(WEB3FORMS, route => {
+    page.sent.push(route.request().postDataJSON());
+    return route.fulfill({ json: { success: true, message: 'Email sent successfully!' } });
+  });
   await page.goto('/');
   await page.locator('#contact').scrollIntoViewIfNeeded();
 });
@@ -100,6 +109,7 @@ test('project type chips work from the keyboard', async ({ page }) => {
 });
 
 test('a valid submit composes the email draft and announces success', async ({ page }) => {
+  test.skip(sendsDirectly, 'the form emails directly once a Web3Forms key is set');
   const url = page.url();
   await fillValid(page);
   await page.getByRole('checkbox', { name: /free test edit/i }).check();
@@ -129,6 +139,44 @@ test('a valid submit composes the email draft and announces success', async ({ p
   await expect(page.getByLabel('Your name')).toHaveValue('');
 });
 
+test('a valid submit emails the inquiry and confirms it was sent', async ({ page }) => {
+  test.skip(!sendsDirectly, 'needs inquiry.web3formsKey in src/data.js');
+  await fillValid(page);
+  await page.getByRole('checkbox', { name: /free test edit/i }).check();
+  await submit(page).click();
+
+  const status = page.locator('#contact').getByRole('status');
+  await expect(status).toContainText(inquiry.sent.title);
+  await expect(status.getByRole('heading')).toBeFocused();
+
+  expect(page.sent).toHaveLength(1);
+  expect(page.sent[0]).toMatchObject({
+    access_key: inquiry.web3formsKey,
+    subject: 'Project inquiry: Podcast clips — Sam Carter',
+    name: 'Sam Carter',
+    email: 'sam@example.com',
+    Budget: '$100–300',
+    Footage: 'https://drive.google.com/folder/abc',
+    'Free test edit': 'Yes, please',
+    message: 'Three clips a week from my podcast.',
+  });
+  expect(page.errors).toEqual([]);
+});
+
+test('if sending fails, the visitor keeps their message and gets the email draft', async ({ page }) => {
+  test.skip(!sendsDirectly, 'needs inquiry.web3formsKey in src/data.js');
+  await page.route(WEB3FORMS, route => route.abort('internetdisconnected'));
+  await fillValid(page);
+  await submit(page).click();
+
+  const alert = form(page).getByRole('alert');
+  await expect(alert).toContainText(/didn’t go through/i);
+  const draft = new URL(await alert.getByRole('link', { name: inquiry.failed.fallback }).getAttribute('href'));
+  expect(draft.protocol).toBe('mailto:');
+  expect(draft.pathname).toBe(profile.email);
+  await expect(page.getByLabel('Your name')).toHaveValue('Sam Carter');
+});
+
 test('footer links are tappable and reach their sections', async ({ page }) => {
   // Landing is under test, not the glide: jump instead of smooth-scrolling the whole page per link.
   await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -143,8 +191,52 @@ test('footer links are tappable and reach their sections', async ({ page }) => {
 
   await footer.getByRole('navigation', { name: /footer/i }).getByRole('link', { name: 'Work' }).click();
   await expect(page.locator('#work')).toBeInViewport();
+});
 
+test('footer lays section links and socials out as two side-by-side columns', async ({ page }) => {
+  const footer = page.getByRole('contentinfo');
   await footer.scrollIntoViewIfNeeded();
-  await footer.getByRole('link', { name: /back to top/i }).click();
+  await page.evaluate(() => document.fonts.ready);
+  const sections = await footer.getByRole('navigation', { name: /footer/i }).boundingBox();
+  const socials = await footer.getByRole('list', { name: /social/i }).boundingBox();
+  expect(Math.abs(sections.y - socials.y), 'columns share a top edge').toBeLessThan(2);
+  expect(socials.x, 'socials sit to the right').toBeGreaterThanOrEqual(sections.x + sections.width - 1);
+
+  // Each column stacks its links vertically.
+  const boxes = await footer.getByRole('navigation', { name: /footer/i }).getByRole('link').evaluateAll(links =>
+    links.map(link => link.getBoundingClientRect()),
+  );
+  for (let i = 1; i < boxes.length; i++) {
+    expect(boxes[i].x).toBeCloseTo(boxes[0].x, 0);
+    expect(boxes[i].y).toBeGreaterThan(boxes[i - 1].y);
+  }
+});
+
+test('back-to-top pill appears after scrolling, returns to the top and hides there', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const pill = page.getByRole('link', { name: /back to top/i });
+
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(pill).toHaveCount(0);
+
+  await page.evaluate(() => window.scrollTo(0, 1500));
+  await expect(pill).toBeVisible();
+  const box = await pill.boundingBox();
+  expect(box.height, 'tap target at least 44px tall').toBeGreaterThanOrEqual(44);
+
+  // Fixed to the viewport: still there at the very bottom, without covering footer links.
+  await page.getByRole('contentinfo').scrollIntoViewIfNeeded();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  await expect(pill).toBeVisible();
+  const pillBox = await pill.boundingBox();
+  for (const link of await page.getByRole('contentinfo').getByRole('link').all()) {
+    const l = await link.boundingBox();
+    const overlaps =
+      l.x < pillBox.x + pillBox.width && pillBox.x < l.x + l.width && l.y < pillBox.y + pillBox.height && pillBox.y < l.y + l.height;
+    expect(overlaps, `pill clears ${await link.textContent()}`).toBe(false);
+  }
+
+  await pill.click();
   await expect(page.getByRole('heading', { level: 1 })).toBeInViewport();
+  await expect(pill).toHaveCount(0);
 });

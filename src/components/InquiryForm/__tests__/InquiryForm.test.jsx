@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import InquiryForm from '../InquiryForm';
 import { buildInquiryMailto } from '../../../lib/mailto';
 import { inquiry } from '../../../data';
@@ -168,6 +168,61 @@ describe('InquiryForm', () => {
     expect(within(status).getByRole('link', { name: inquiry.success.retry })).toHaveAttribute('href', expected);
     expect(within(status).getByRole('heading', { name: inquiry.success.title })).toHaveFocus();
     expect(screen.queryByRole('button', { name: inquiry.submitLabel })).not.toBeInTheDocument();
+  });
+
+  describe('when it can send directly', () => {
+    function renderSending(send) {
+      const openMailto = vi.fn();
+      render(<InquiryForm to={TO} recipient="Pradeep" send={send} openMailto={openMailto} />);
+      return { openMailto };
+    }
+
+    test('sends the inquiry, shows progress, then confirms it was sent', async () => {
+      let resolve;
+      const send = vi.fn(() => new Promise(r => (resolve = r)));
+      const { openMailto } = renderSending(send);
+      fillValid();
+      submit();
+
+      expect(send).toHaveBeenCalledWith(expect.objectContaining({ name: 'Sam Carter', email: 'sam@example.com' }));
+      const busy = screen.getByRole('button', { name: inquiry.sendingLabel });
+      expect(busy).toHaveAttribute('aria-disabled', 'true');
+      fireEvent.click(busy); // a second click while sending is ignored
+      expect(send).toHaveBeenCalledTimes(1);
+
+      await act(async () => resolve());
+      const status = screen.getByRole('status');
+      expect(status).toHaveTextContent(inquiry.sent.title);
+      expect(within(status).getByRole('heading', { name: inquiry.sent.title })).toHaveFocus();
+      expect(within(status).queryByRole('link')).not.toBeInTheDocument();
+      expect(openMailto).not.toHaveBeenCalled();
+    });
+
+    test('on failure keeps the form filled and offers the email draft instead', async () => {
+      const send = vi.fn().mockRejectedValue(new Error('offline'));
+      renderSending(send);
+      fillValid();
+      await act(async () => submit());
+
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveTextContent(inquiry.failed.message);
+      expect(within(alert).getByRole('link', { name: inquiry.failed.fallback })).toHaveAttribute(
+        'href',
+        expect.stringMatching(new RegExp(`^mailto:${TO}\\?subject=`)),
+      );
+      expect(field.name()).toHaveValue('Sam Carter');
+      expect(screen.getByRole('button', { name: inquiry.submitLabel })).not.toHaveAttribute('aria-disabled');
+    });
+
+    test('quietly drops submissions that fill the hidden spam trap', async () => {
+      const send = vi.fn().mockResolvedValue();
+      renderSending(send);
+      fillValid();
+      fireEvent.click(document.querySelector('input[name="botcheck"]'));
+      await act(async () => submit());
+      expect(send).not.toHaveBeenCalled();
+      expect(screen.getByRole('status')).toHaveTextContent(inquiry.sent.title);
+    });
   });
 
   test('starts over with an empty form', () => {

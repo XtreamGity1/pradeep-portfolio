@@ -5,7 +5,13 @@ import Magnet from '../components/Magnet/Magnet';
 import SplitText from '../components/SplitText/SplitText';
 import { Button, ExternalLink, Eyebrow, Section } from '../components/ui';
 import useMediaQuery from '../hooks/useMediaQuery';
-import { profile } from '../data';
+import { sendInquiry } from '../lib/sendInquiry';
+import { inquiry, profile } from '../data';
+
+// Email inquiries straight to the inbox once a Web3Forms key is set; until then the form opens an email draft.
+const sendDirect = inquiry.web3formsKey
+  ? values => sendInquiry(values, { accessKey: inquiry.web3formsKey })
+  : undefined;
 
 const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
 const HEADLINE = 'Let’s make something people finish watching.';
@@ -84,7 +90,7 @@ export default function Contact() {
             </ul>
           </div>
 
-          <InquiryForm to={profile.email} recipient={profile.name.split(' ')[0]} />
+          <InquiryForm to={profile.email} recipient={profile.name.split(' ')[0]} send={sendDirect} />
         </div>
       </ClickSpark>
     </Section>

@@ -11,6 +11,7 @@ import Promises from './sections/Promises';
 import FAQ from './sections/FAQ';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
+import BackToTop from './components/BackToTop/BackToTop';
 
 // Page composition — add, remove or reorder sections here.
 export default function App() {
@@ -31,6 +32,7 @@ export default function App() {
         <Contact />
       </main>
       <Footer />
+      <BackToTop />
     </>
   );
 }
