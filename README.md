@@ -9,9 +9,9 @@ Single-page portfolio for a video/content editor. Built with React, Vite and Tai
 ## Scripts
 
 ```sh
-npm run dev       # dev server
-npm run build     # production build
-npm test          # Vitest unit tests
-npm run test:e2e  # Playwright cross-device tests (builds and serves on :4173)
-npm run lint      # oxlint
+yarn dev          # dev server
+yarn build        # production build
+yarn test         # Vitest unit tests
+yarn test:e2e     # Playwright cross-device tests (builds and serves on :4173)
+yarn lint         # oxlint
 ```
