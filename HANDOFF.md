@@ -33,7 +33,7 @@ three comparisons remain: portrait grade, sky replacement, greenscreen.
 
 ## Waiting on the user
 - **Contact details**: email is `hello.pradeepvideo@gmail.com` (user confirmed). The reel also shows
-  `@pradeep_9.k`; ask before adding it. The location in data.js `profile` is still a placeholder.
+  `@pradeep_9.k`; ask before adding it.
 - Real domain for canonical / og:url / JSON-LD url in `index.html` (still `example.com`).
 - The 8 merged worker worktrees in `.claude/worktrees/` (+ `worktree-agent-*` branches) can be deleted.
 
