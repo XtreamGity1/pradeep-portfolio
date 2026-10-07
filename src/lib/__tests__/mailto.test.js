@@ -49,8 +49,8 @@ describe('buildInquiryMailto', () => {
   });
 
   test('puts the message and every detail in the body, trimmed', () => {
-    const { body } = parse(buildInquiryMailto('hello@example.com', VALUES, { recipient: 'Alex' }));
-    expect(body.startsWith('Hi Alex,\r\n\r\nWeekly vlog, ~15 min.\r\nNeed tighter hooks.')).toBe(true);
+    const { body } = parse(buildInquiryMailto('hello@example.com', VALUES, { recipient: 'Pradeep' }));
+    expect(body.startsWith('Hi Pradeep,\r\n\r\nWeekly vlog, ~15 min.\r\nNeed tighter hooks.')).toBe(true);
     expect(body).toContain('Project type: YouTube long-form');
     expect(body).toContain('Budget: $100–300');
     expect(body).toContain('Timeline: Within 2 weeks');

@@ -1,11 +1,11 @@
 // All portfolio content lives here — edit this file to personalize the site.
 
-// Placeholder identity — replace name, initials, location and email with your own.
+// Identity. PLACEHOLDER: location and email — replace with your own.
 export const profile = {
-  name: 'Alex Rivera',
-  initials: 'AR',
+  name: 'Pradeep Vangoori',
+  initials: 'PV',
   location: 'Based in Los Angeles · Editing remotely',
-  email: 'hello@alexrivera.studio',
+  email: 'hello@example.com',
   roles: ['YouTube videos', 'Shorts', 'Reels', 'podcast clips', 'vlogs'],
   tagline:
     'Video editor for YouTube creators and short-form — turning raw footage into videos people want to finish.',
@@ -25,12 +25,20 @@ export const profile = {
 export const showreel = {
   cta: 'Watch my reel',
   title: '2026 showreel',
-  duration: '1:12', // PLACEHOLDER: match your reel's runtime.
-  description: 'A minute of my favourite cuts: personal projects, spec edits and re-edits, built around hooks and pacing.',
-  // PLACEHOLDER: royalty-free sample clip + random poster. Swap in your own reel.
-  src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4',
-  poster: 'https://picsum.photos/seed/showreel/1280/720',
+  duration: '0:42',
+  description: 'My favourite cuts in under a minute: colour grading, pacing and sound.',
+  // Web encode of media-src/Hero.MP4 (1080p H.264 + AAC). Or set `embedUrl` to a YouTube/Vimeo embed.
+  src: '/media/hero-reel.mp4',
+  poster: '/media/hero-poster.jpg',
   embedUrl: '',
+};
+
+// Muted background loop behind the hero: the reel's footage from 0:07.5 to 0:37.5, skipping the
+// title and end cards (720p, no audio, ~4.5 MB). The poster (its first frame) shows while it
+// loads, and instead of it when the viewer prefers reduced motion.
+export const heroVideo = {
+  src: '/media/hero-loop.mp4',
+  poster: '/media/hero-poster.jpg',
 };
 
 // Header links, in page order. `compact` items also fit the slim mobile bar at the top of the
@@ -518,7 +526,7 @@ export const testimonials = [
   {
     // PLACEHOLDER — replace with a real quote.
     quote:
-      'Alex re-cut my first ten videos and the difference was obvious — tighter intros, no dead air, and people actually stuck around to the end.',
+      'Pradeep re-cut my first ten videos and the difference was obvious — tighter intros, no dead air, and people actually stuck around to the end.',
     name: 'Sam Patel',
     role: 'Friend & small YouTube channel',
   },
@@ -594,10 +602,9 @@ export const inquiry = {
   budgets: ['Under $100', '$100–300', '$300–750', '$750+', 'Not sure yet'],
   // Placeholder deadlines — match them to your real availability.
   timelines: ['This week', 'Within 2 weeks', 'Within a month', 'Ongoing — regular uploads', 'Flexible'],
-  testEdit: {
-    label: 'I’d like a free test edit first',
-    hint: 'Send 2–3 minutes of footage and I’ll cut a sample, so you can see my pacing before you commit.',
-  },
+  // Budget, timeline and footage link sit behind this toggle to keep the form short.
+  detailsLabel: 'Add budget, timeline or a footage link',
+  testEdit: { label: 'I’d like a free test edit first' },
   submitLabel: 'Send project details',
   success: {
     title: 'Your email is ready to send.',

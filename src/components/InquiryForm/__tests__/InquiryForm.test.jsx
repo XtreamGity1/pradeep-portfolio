@@ -7,7 +7,7 @@ const TO = 'hello@example.com';
 
 function renderForm() {
   const openMailto = vi.fn();
-  render(<InquiryForm to={TO} recipient="Alex" openMailto={openMailto} />);
+  render(<InquiryForm to={TO} recipient="Pradeep" openMailto={openMailto} />);
   return { openMailto, form: screen.getByRole('form', { name: inquiry.title }) };
 }
 
@@ -51,6 +51,34 @@ describe('InquiryForm', () => {
     expect(field.message().tagName).toBe('TEXTAREA');
     expect(field.message()).toBeRequired();
     expect(field.testEdit()).not.toBeChecked();
+  });
+
+  test('keeps the form short: optional details start tucked away and the message box is compact', () => {
+    renderForm();
+    const toggle = screen.getByText(/add budget, timeline or a footage link/i);
+    expect(field.budget()).not.toBeVisible();
+    expect(field.timeline()).not.toBeVisible();
+    expect(field.footage()).not.toBeVisible();
+    expect(field.message()).toHaveAttribute('rows', '3');
+
+    fireEvent.click(toggle);
+    expect(field.budget()).toBeVisible();
+    expect(field.timeline()).toBeVisible();
+    expect(field.footage()).toBeVisible();
+  });
+
+  test('opens the optional details to show an invalid footage link', () => {
+    renderForm();
+    fillValid();
+    const toggle = screen.getByText(/add budget, timeline or a footage link/i);
+    fireEvent.click(toggle);
+    type(field.footage(), 'not a link');
+    fireEvent.click(toggle); // collapse it again before submitting
+    expect(field.footage()).not.toBeVisible();
+
+    submit();
+    expect(field.footage()).toBeVisible();
+    expect(field.footage()).toHaveFocus();
   });
 
   test('offers every project type as a radio in a labelled group', () => {
@@ -131,7 +159,7 @@ describe('InquiryForm', () => {
         message: 'Weekly vlog, ~15 minutes.',
         testEdit: true,
       },
-      { recipient: 'Alex' },
+      { recipient: 'Pradeep' },
     );
     expect(openMailto).toHaveBeenCalledWith(expected);
 

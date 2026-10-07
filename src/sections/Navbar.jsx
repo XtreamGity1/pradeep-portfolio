@@ -5,6 +5,7 @@ import { Button, Eyebrow, focusRing } from '../components/ui';
 import useScrolled from '../hooks/useScrolled';
 import useMediaQuery from '../hooks/useMediaQuery';
 import useScrollSpy from '../hooks/useScrollSpy';
+import useScrollLock from '../hooks/useScrollLock';
 import { navCta, navItems, profile } from '../data';
 
 const MENU_ID = 'site-menu';
@@ -95,7 +96,7 @@ function MenuOverlay({ dialogRef, activeHref, onNavigate }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0, transition: { duration: 0.25, delay: 0.1 } }}
       transition={{ duration: 0.3 }}
-      className="fixed inset-0 z-40 flex flex-col justify-center overflow-y-auto bg-ink/80 px-6 py-24 backdrop-blur-xl md:hidden"
+      className="fixed inset-0 z-40 flex flex-col justify-center overflow-y-auto overscroll-contain bg-ink/80 px-6 py-24 backdrop-blur-xl md:hidden"
     >
       <Eyebrow tone="muted" className="mb-8">
         Menu
@@ -140,12 +141,11 @@ export default function Navbar() {
     navigate(item);
   };
 
-  // While open: lock body scroll, focus the first link, close on Escape and keep Tab inside.
+  useScrollLock(open);
+
+  // While open: focus the first link, close on Escape and keep Tab inside.
   useEffect(() => {
     if (!open) return;
-    const { body } = document;
-    const previousOverflow = body.style.overflow;
-    body.style.overflow = 'hidden';
     dialogRef.current?.querySelector('a')?.focus();
 
     const onKeyDown = e => {
@@ -167,10 +167,7 @@ export default function Navbar() {
       }
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => {
-      body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
-    };
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, [open]);
 
   return (

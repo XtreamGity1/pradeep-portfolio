@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { profile } from '../src/data.js';
 
 const LG_BREAKPOINT = 1024;
 
@@ -12,17 +13,31 @@ test.beforeEach(async ({ page }) => {
 
 const form = page => page.getByRole('form', { name: /tell me about your video/i });
 const submit = page => page.getByRole('button', { name: /send project details/i });
+const detailsToggle = page => form(page).getByText(/add budget, timeline or a footage link/i);
+const openDetails = page => detailsToggle(page).click();
 
 async function fillValid(page) {
   await page.getByLabel('Your name').fill('Sam Carter');
   await page.getByLabel('Your email').fill('sam@example.com');
   await page.getByRole('radio', { name: 'Podcast clips' }).check();
+  await openDetails(page);
   await page.getByLabel(/budget/i).selectOption('$100–300');
   await page.getByLabel(/footage link/i).fill('drive.google.com/folder/abc');
   await page.getByLabel(/about the project/i).fill('Three clips a week from my podcast.');
 }
 
+test('optional details start collapsed behind a tappable toggle', async ({ page }) => {
+  await detailsToggle(page).scrollIntoViewIfNeeded();
+  await expect(page.getByLabel(/footage link/i)).toBeHidden();
+  const box = await detailsToggle(page).boundingBox();
+  expect(box.height, 'toggle tap target').toBeGreaterThanOrEqual(44);
+  await openDetails(page);
+  await expect(page.getByLabel(/budget/i)).toBeVisible();
+  await expect(page.getByLabel(/footage link/i)).toBeVisible();
+});
+
 test('form controls are tappable and big enough not to trigger iOS zoom', async ({ page }) => {
+  await openDetails(page);
   const controls = form(page).locator('input:not([type=checkbox]), select, textarea, button');
   expect(await controls.count()).toBeGreaterThan(8);
   for (const control of await controls.all()) {
@@ -90,14 +105,14 @@ test('a valid submit composes the email draft and announces success', async ({ p
   await page.getByRole('checkbox', { name: /free test edit/i }).check();
   await submit(page).click();
 
-  const status = page.getByRole('status');
+  const status = page.locator('#contact').getByRole('status');
   await expect(status).toContainText(/your email is ready to send/i);
   await expect(status.getByRole('heading')).toBeFocused();
 
   const href = await status.getByRole('link', { name: /open the email draft/i }).getAttribute('href');
   const draft = new URL(href);
   expect(draft.protocol).toBe('mailto:');
-  expect(draft.pathname).toBe('hello@alexrivera.studio');
+  expect(draft.pathname).toBe(profile.email);
   expect(draft.searchParams.get('subject')).toBe('Project inquiry: Podcast clips — Sam Carter');
   const body = draft.searchParams.get('body');
   expect(body).toContain('Three clips a week from my podcast.');
@@ -115,6 +130,8 @@ test('a valid submit composes the email draft and announces success', async ({ p
 });
 
 test('footer links are tappable and reach their sections', async ({ page }) => {
+  // Landing is under test, not the glide: jump instead of smooth-scrolling the whole page per link.
+  await page.emulateMedia({ reducedMotion: 'reduce' });
   const footer = page.getByRole('contentinfo');
   await footer.scrollIntoViewIfNeeded();
   const links = footer.getByRole('link');

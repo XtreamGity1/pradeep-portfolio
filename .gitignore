@@ -30,3 +30,6 @@ dist-ssr
 /.qa-dist/
 /.lead-dist/
 .claude/worktrees/
+
+# Full-size source footage (web encodes live in public/media)
+/media-src/

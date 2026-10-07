@@ -1,13 +1,9 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach, vi } from 'vitest';
+import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
 afterEach(cleanup);
 
-// WebGL isn't available in jsdom — render Aurora as an inert placeholder.
-vi.mock('../components/Aurora/Aurora', () => ({
-  default: () => <div data-testid="aurora" />,
-}));
 
 // Browser APIs used by React Bits / motion / gsap that jsdom lacks.
 class ObserverStub {

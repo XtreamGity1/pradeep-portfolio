@@ -16,7 +16,9 @@ const EMPTY = {
   testEdit: false,
 };
 // Form order — the first invalid field in this list receives focus on submit.
-const ORDER = ['name', 'email', 'projectType', 'budget', 'timeline', 'footage', 'message'];
+const ORDER = ['name', 'email', 'projectType', 'message', 'budget', 'timeline', 'footage'];
+// Fields inside the collapsible "optional details" group.
+const DETAILS = ['budget', 'timeline', 'footage'];
 
 // No backend: hand the composed draft to the visitor's email app.
 const assignLocation = href => window.location.assign(href);
@@ -83,6 +85,7 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
   const [touched, setTouched] = useState({});
   const [summary, setSummary] = useState('');
   const [sentHref, setSentHref] = useState(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const fieldRefs = useRef({});
   const successRef = useRef(null);
   const register = field => el => {
@@ -118,6 +121,7 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
       flushSync(() => {
         setErrors(found);
         setTouched(Object.fromEntries(ORDER.map(field => [field, true])));
+        if (DETAILS.includes(invalid[0])) setDetailsOpen(true);
         setSummary(
           `Almost there — ${invalid.length} ${invalid.length === 1 ? 'field needs' : 'fields need'} a quick fix.`,
         );
@@ -141,6 +145,7 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
       setErrors({});
       setTouched({});
       setSentHref(null);
+      setDetailsOpen(false);
     });
     fieldRefs.current.name?.focus();
   };
@@ -253,43 +258,6 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
           </fieldset>
 
           <Field
-            id={id('budget')}
-            label="Budget"
-            optional
-            render={a11y => (
-              <SelectField {...a11y} {...textProps('budget')} options={inquiry.budgets} placeholder="Choose a range" />
-            )}
-          />
-          <Field
-            id={id('timeline')}
-            label="Timeline"
-            optional
-            render={a11y => (
-              <SelectField {...a11y} {...textProps('timeline')} options={inquiry.timelines} placeholder="When do you need it?" />
-            )}
-          />
-
-          <Field
-            id={id('footage')}
-            label="Footage link"
-            optional
-            error={errors.footage}
-            className="sm:col-span-2"
-            render={a11y => (
-              <input
-                {...a11y}
-                {...textProps('footage')}
-                type="url"
-                inputMode="url"
-                autoComplete="off"
-                autoCapitalize="none"
-                spellCheck={false}
-                placeholder="https://drive.google.com/…"
-                className={control}
-              />
-            )}
-          />
-          <Field
             id={id('message')}
             label="About the project"
             error={errors.message}
@@ -298,13 +266,69 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
               <textarea
                 {...a11y}
                 {...textProps('message')}
-                rows={5}
+                rows={3}
                 required
                 placeholder="Channel link, video length, the vibe you’re going for…"
                 className={`${control} resize-y`}
               />
             )}
           />
+
+          {/* Optional extras stay folded away so the form reads short; opened for an invalid footage link. */}
+          <details open={detailsOpen} className="group sm:col-span-2">
+            <summary
+              onClick={event => {
+                event.preventDefault();
+                setDetailsOpen(open => !open);
+              }}
+              className={`flex min-h-11 w-fit cursor-pointer list-none items-center gap-2 rounded-lg text-sm font-medium text-muted transition-colors duration-300 hover:text-fg [&::-webkit-details-marker]:hidden ${focusRing}`}
+            >
+              <span aria-hidden="true" className="text-lg leading-none text-accent transition-transform duration-300 group-open:rotate-45">
+                +
+              </span>
+              {inquiry.detailsLabel}
+              <Optional />
+            </summary>
+            <div className="mt-3 grid gap-5 sm:grid-cols-2 sm:gap-x-4">
+              <Field
+                id={id('budget')}
+                label="Budget"
+                optional
+                render={a11y => (
+                  <SelectField {...a11y} {...textProps('budget')} options={inquiry.budgets} placeholder="Choose a range" />
+                )}
+              />
+              <Field
+                id={id('timeline')}
+                label="Timeline"
+                optional
+                render={a11y => (
+                  <SelectField {...a11y} {...textProps('timeline')} options={inquiry.timelines} placeholder="When do you need it?" />
+                )}
+              />
+
+              <Field
+                id={id('footage')}
+                label="Footage link"
+                optional
+                error={errors.footage}
+                className="sm:col-span-2"
+                render={a11y => (
+                  <input
+                    {...a11y}
+                    {...textProps('footage')}
+                    type="url"
+                    inputMode="url"
+                    autoComplete="off"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    placeholder="https://drive.google.com/…"
+                    className={control}
+                  />
+                )}
+              />
+            </div>
+          </details>
 
           <div className="sm:col-span-2">
             <label className="flex min-h-11 cursor-pointer items-start gap-3 py-2">
@@ -313,14 +337,10 @@ export default function InquiryForm({ to, recipient, openMailto = assignLocation
                 name="testEdit"
                 checked={values.testEdit}
                 onChange={event => update('testEdit', event.target.checked)}
-                aria-describedby={id('testEdit-hint')}
                 className={`mt-0.5 size-5 shrink-0 cursor-pointer accent-accent ${focusRing}`}
               />
               <span className="text-base font-medium text-fg">{inquiry.testEdit.label}</span>
             </label>
-            <p id={id('testEdit-hint')} className="pl-8 text-sm leading-relaxed text-muted">
-              {inquiry.testEdit.hint}
-            </p>
           </div>
 
           <div className="flex flex-col sm:col-span-2 sm:flex-row sm:items-center">

@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import Aurora from '../components/Aurora/Aurora';
 import SplitText from '../components/SplitText/SplitText';
 import RotatingText from '../components/RotatingText/RotatingText';
 import BlurText from '../components/BlurText/BlurText';
@@ -8,11 +7,10 @@ import Magnet from '../components/Magnet/Magnet';
 import ShowreelModal from '../components/ShowreelModal/ShowreelModal';
 import { Button, Eyebrow, Pill, focusRing } from '../components/ui';
 import useMediaQuery from '../hooks/useMediaQuery';
-import { profile, showreel } from '../data';
+import { heroVideo, profile, showreel } from '../data';
 
-const AURORA_COLORS = ['#8b5cf6', '#ff4d6d', '#ffb86b'];
-// Fixed Aurora frame shown instead of the animation when motion is reduced.
-const STILL_AURORA_TIME = 40;
+// Dimmed so the headline stays readable over bright footage.
+const HERO_MEDIA_CLASS = 'absolute inset-0 size-full object-cover opacity-60';
 const ROLE_TRANSITION = { type: 'spring', damping: 30, stiffness: 400 };
 
 // The showreel button leads; these follow as secondary links.
@@ -22,6 +20,8 @@ const CTAS = [
 ];
 // Equal full-width buttons when stacked on phones; content-sized in a row from sm.
 const CTA_CLASS = 'w-full justify-center sm:w-auto';
+// Only the hovered button reacts (no padding), and gently enough that it can't cross the 16px gap.
+const MAGNET = { padding: 0, magnetStrength: 8 };
 // Same pill + primary colors as <Button>; the play disc plus py-1 keeps the height equal to it.
 const SHOWREEL_CLASS =
   'group inline-flex items-center gap-3 rounded-full border border-transparent bg-fg py-1 pr-6 pl-1 text-sm font-semibold text-ink transition-colors duration-300 hover:bg-accent';
@@ -41,6 +41,9 @@ function PlayIcon() {
 
 export default function Hero() {
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
+  // Touch taps fire mousemove too, which would drag every stacked CTA at once — mouse/trackpad only.
+  const finePointer = useMediaQuery('(hover: hover) and (pointer: fine)');
+  const magnetOff = reducedMotion || !finePointer;
   const [reelOpen, setReelOpen] = useState(false);
   const reelButtonRef = useRef(null);
 
@@ -49,17 +52,23 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4 pt-28 pb-24 sm:px-6 md:pt-32"
     >
-      {/* Decorative background: aurora + fade into the page. */}
+      {/* Decorative background: the reel on a muted loop (a still frame under reduced motion), faded into the page. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 opacity-70">
-          <Aurora
-            colorStops={AURORA_COLORS}
-            amplitude={1}
-            blend={0.5}
-            time={reducedMotion ? STILL_AURORA_TIME : undefined}
+        {reducedMotion ? (
+          <img src={heroVideo.poster} alt="" className={HERO_MEDIA_CLASS} />
+        ) : (
+          <video
+            src={heroVideo.src}
+            poster={heroVideo.poster}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className={HERO_MEDIA_CLASS}
           />
-        </div>
-        <div className="absolute inset-0 bg-linear-to-b from-ink/20 via-ink/40 to-ink" />
+        )}
+        <div className="absolute inset-0 bg-linear-to-b from-ink/70 via-ink/55 to-ink" />
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center text-center">
@@ -115,7 +124,7 @@ export default function Hero() {
         />
 
         <div className="mt-10 flex w-full max-w-xs flex-col gap-4 sm:w-auto sm:max-w-none sm:flex-row">
-          <Magnet padding={60} magnetStrength={4} disabled={reducedMotion}>
+          <Magnet {...MAGNET} disabled={magnetOff}>
             <button
               ref={reelButtonRef}
               type="button"
@@ -130,7 +139,7 @@ export default function Hero() {
             </button>
           </Magnet>
           {CTAS.map(cta => (
-            <Magnet key={cta.href} padding={60} magnetStrength={4} disabled={reducedMotion}>
+            <Magnet key={cta.href} {...MAGNET} disabled={magnetOff}>
               <Button href={cta.href} variant={cta.variant} className={CTA_CLASS}>
                 {cta.label}
               </Button>

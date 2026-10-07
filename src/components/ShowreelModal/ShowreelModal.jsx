@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { Eyebrow, focusRing } from '../ui';
 import useMediaQuery from '../../hooks/useMediaQuery';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const EASE = [0.22, 1, 0.36, 1];
 const FOCUSABLE = 'button, [href], iframe, video[controls], [tabindex]:not([tabindex="-1"])';
@@ -27,13 +28,12 @@ export default function ShowreelModal({ open, reel, onClose, returnFocusRef }) {
     onCloseRef.current = onClose;
   });
 
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
-    const { body } = document;
-    const previousOverflow = body.style.overflow;
     const previousFocus = returnFocusRef?.current ?? document.activeElement;
     const video = videoRef.current;
-    body.style.overflow = 'hidden';
     closeRef.current?.focus();
 
     const focusables = () => [...(dialogRef.current?.querySelectorAll(FOCUSABLE) ?? [])];
@@ -65,7 +65,6 @@ export default function ShowreelModal({ open, reel, onClose, returnFocusRef }) {
       document.removeEventListener('focusin', onFocusIn);
       // The player stays mounted for the exit animation, so silence it right away.
       video?.pause();
-      body.style.overflow = previousOverflow;
       previousFocus?.focus?.();
     };
   }, [open, returnFocusRef]);
@@ -82,7 +81,7 @@ export default function ShowreelModal({ open, reel, onClose, returnFocusRef }) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={fade}
-          className="fixed inset-0 z-60 flex overflow-y-auto p-4 sm:p-6"
+          className="fixed inset-0 z-60 flex overflow-y-auto overscroll-contain p-4 sm:p-6"
         >
           <div
             data-testid="showreel-backdrop"

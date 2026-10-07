@@ -1,6 +1,19 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import Hero from '../Hero';
-import { profile, showreel } from '../../data';
+import { heroVideo, profile, showreel } from '../../data';
+
+function mockReducedMotion() {
+  const original = window.matchMedia;
+  window.matchMedia = query => ({
+    matches: query.includes('prefers-reduced-motion: reduce'),
+    media: query,
+    addEventListener() {},
+    removeEventListener() {},
+  });
+  return () => {
+    window.matchMedia = original;
+  };
+}
 
 const openShowreel = () => {
   const trigger = screen.getByRole('button', { name: new RegExp(showreel.cta, 'i') });
@@ -50,9 +63,27 @@ describe('Hero', () => {
     expect(screen.getByRole('link', { name: /scroll/i })).toHaveClass('[@media(max-height:44rem)]:hidden');
   });
 
-  test('renders the Aurora background as decorative', () => {
-    render(<Hero />);
-    expect(screen.getByTestId('aurora').closest('[aria-hidden="true"]')).not.toBeNull();
+  test('plays the hero video as a muted, looping, decorative background', () => {
+    const { container } = render(<Hero />);
+    const video = container.querySelector('video');
+    expect(video).not.toBeNull();
+    expect(video.closest('[aria-hidden="true"]')).not.toBeNull();
+    expect(video).toHaveAttribute('src', heroVideo.src);
+    expect(video).toHaveAttribute('poster', heroVideo.poster);
+    expect(video.muted).toBe(true);
+    expect(video.loop).toBe(true);
+    expect(video.autoplay).toBe(true);
+    expect(video).toHaveAttribute('playsinline');
+  });
+
+  test('shows the still poster instead of the video when motion is reduced', () => {
+    const restore = mockReducedMotion();
+    const { container } = render(<Hero />);
+    restore();
+    expect(container.querySelector('video')).toBeNull();
+    const still = container.querySelector(`img[src="${heroVideo.poster}"]`);
+    expect(still).not.toBeNull();
+    expect(still).toHaveAttribute('alt', '');
   });
 
   describe('showreel', () => {
@@ -130,7 +161,8 @@ describe('Hero', () => {
       expect(trigger).toHaveFocus();
       expect(document.body.style.overflow).toBe('');
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
-      expect(document.querySelector('video')).toBeNull();
+      // The reel's player is gone; only the muted background loop remains.
+      expect(document.querySelector(`video[src="${showreel.src}"]`)).toBeNull();
     });
 
     test('the close button closes it', async () => {

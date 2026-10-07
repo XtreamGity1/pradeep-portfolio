@@ -2,6 +2,7 @@ import { useEffect, useEffectEvent, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'motion/react';
 import { Eyebrow, Pill } from '../../components/ui';
+import useScrollLock from '../../hooks/useScrollLock';
 
 const FOCUSABLE = 'a[href], button:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
 const EASE = [0.22, 1, 0.36, 1];
@@ -72,10 +73,10 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
   const titleId = useId();
   const requestClose = useEffectEvent(onClose);
 
+  // Mounted only while open, so the lock lasts exactly as long as the dialog.
+  useScrollLock(true);
+
   useEffect(() => {
-    const { body } = document;
-    const previousOverflow = body.style.overflow;
-    body.style.overflow = 'hidden';
     closeRef.current?.focus();
 
     const onKeyDown = e => {
@@ -98,10 +99,7 @@ export default function ProjectDialog({ project, prev, next, onSelect, onClose }
       }
     };
     document.addEventListener('keydown', onKeyDown);
-    return () => {
-      body.style.overflow = previousOverflow;
-      document.removeEventListener('keydown', onKeyDown);
-    };
+    return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
   // Browsing to another project starts it from the top.
