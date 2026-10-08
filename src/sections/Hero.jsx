@@ -7,6 +7,7 @@ import ShowreelModal from '../components/ShowreelModal/ShowreelModal';
 import NowShowing from './hero/NowShowing';
 import { Button, Eyebrow, focusRing } from '../components/ui';
 import useMediaQuery from '../hooks/useMediaQuery';
+import useFitsViewport from '../hooks/useFitsViewport';
 import { heroVideo, profile, showreel } from '../data';
 
 // Dimmed so the headline stays readable over bright footage. The footage has letterbox bars baked in
@@ -49,9 +50,14 @@ export default function Hero() {
   const [reelOpen, setReelOpen] = useState(false);
   const reelButtonRef = useRef(null);
   const videoRef = useRef(null);
+  const sectionRef = useRef(null);
+  // When the hero outgrows the window (narrow or zoomed laptops), the bottom-pinned scroll cue would
+  // sit below the fold, half cut off — hide it instead.
+  const cueFits = useFitsViewport(sectionRef);
 
   return (
     <section
+      ref={sectionRef}
       id="top"
       className="relative flex min-h-svh items-center justify-center overflow-hidden px-4 pt-28 pb-24 sm:px-6 md:pt-32"
     >
@@ -140,7 +146,7 @@ export default function Hero() {
 
       <a
         href="#about"
-        className={`absolute bottom-6 left-1/2 z-10 flex -translate-x-1/2 [@media(max-height:44rem)]:hidden flex-col items-center gap-3 rounded-md text-muted transition-colors hover:text-fg ${focusRing}`}
+        className={`absolute bottom-6 left-1/2 z-10 ${cueFits ? 'flex' : 'hidden'} -translate-x-1/2 [@media(max-height:44rem)]:hidden flex-col items-center gap-3 rounded-md text-muted transition-colors hover:text-fg ${focusRing}`}
       >
         <Eyebrow as="span" tone="muted">
           Scroll
