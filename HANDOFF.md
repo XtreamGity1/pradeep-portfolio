@@ -37,7 +37,14 @@ three comparisons remain: portrait grade, sky replacement, greenscreen.
   falls back to opening an email draft. e2e mocks Web3Forms, so tests never email the inbox.
 - **Contact details**: email is `hello.pradeepvideo@gmail.com` (user confirmed). The reel also shows
   `@pradeep_9.k`; ask before adding it.
-- Real domain for canonical / og:url / JSON-LD url in `index.html` (still `example.com`).
+- **Social links**: `profile.socials` in `src/data.js` still point at bare homepages
+  (`https://youtube.com` …). Replace with real profile URLs (or remove), then consider adding them
+  as `sameAs` in the JSON-LD in `index.html`.
+- **Domain**: nothing to edit. On Vercel the build reads `VERCEL_PROJECT_PRODUCTION_URL` (the custom
+  domain once added, else `*.vercel.app`) into canonical / og / JSON-LD / robots.txt / sitemap.xml.
+  `SITE_URL=https://… yarn build` overrides it; local builds fall back to `example.com` with a warning.
+- **Smaller hero loop for phones** (needs ffmpeg, not currently installed): the 4.4 MB loop is most of
+  a phone's first load. A ~640px encode served via `<source media>` would roughly halve it.
 - The 8 merged worker worktrees in `.claude/worktrees/` (+ `worktree-agent-*` branches) can be deleted.
 
 ## Media pipeline (ffmpeg — no Swift)
@@ -51,6 +58,8 @@ ffmpeg -i media-src/Hero.MP4 -c:v libx264 -b:v 4M -c:a aac -movflags +faststart 
 ffmpeg -ss 7.5 -t 30 -i media-src/Hero.MP4 -vf scale=1280:720 -c:v libx264 -b:v 1.2M -an -movflags +faststart public/media/hero-loop.mp4
 # Letterbox-cropped still at <seconds> (scale=1600:-1 for before/after, 1280:-1 for Work cards)
 ffmpeg -ss <seconds> -i media-src/Hero.MP4 -frames:v 1 -vf "crop=1920:864:0:108,scale=1600:-1" -q:v 4 out.jpg
+# Site images are WebP (about half the JPG size): convert every still before adding it
+cwebp -q 80 -m 6 -metadata none out.jpg -o public/media/reel/<name>.webp
 # Timestamped contact sheet: 30 frames, one per second from 0:07.5
 ffmpeg -ss 7.5 -t 30 -i media-src/Hero.MP4 -vf "fps=1,crop=1920:864:0:108,scale=384:-1,drawtext=text='%{pts\:hms}':x=6:y=6:fontsize=20:fontcolor=yellow:box=1:boxcolor=black,tile=5x6" -frames:v 1 sheet.jpg
 ```
@@ -64,3 +73,15 @@ ffmpeg -ss 7.5 -t 30 -i media-src/Hero.MP4 -vf "fps=1,crop=1920:864:0:108,scale=
 - Body-only `overflow: hidden` doesn't stop mobile root scrolling — use `useScrollLock` (html + body).
 - Hero CTA `Magnet` only for `(hover: hover) and (pointer: fine)`, padding 0 — taps used to drag
   the stacked buttons into each other.
+
+## Production (Vercel)
+- `vercel.json`: build settings, security headers (CSP, nosniff, frame/referrer/permissions policy)
+  and caching (`/assets` immutable, `/media` 1 day + stale-while-revalidate — rename a media file
+  when replacing it). `vite preview` sends the same site-wide headers, so e2e runs under the CSP.
+  Adding a third-party script, font, embed or API means adding its origin to the CSP.
+- `vite.config.js` `seo()` plugin: fills `__SITE_URL__` in `index.html`, emits `robots.txt` and
+  `sitemap.xml`. Vendor code is split into `react` / `motion` / `gsap` chunks.
+- `public/`: `og-image.jpg` (1200×630 share card), `favicon.svg` + `apple-touch-icon.png` (PV mark),
+  `404.html` (served by Vercel for unknown paths).
+- `e2e/production.spec.js` checks all of the above; `BASE_URL=https://… yarn test:e2e e2e/production.spec.js`
+  runs it against a deployment. Preview deployments get `X-Robots-Tag: noindex` from Vercel.

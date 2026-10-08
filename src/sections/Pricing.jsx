@@ -47,7 +47,7 @@ function PackageCard({ pkg, index }) {
             </Pill>
           )}
         </div>
-        <p className="mt-3 leading-relaxed text-muted lg:min-h-[5.25rem]">{pkg.audience}</p>
+        <p className="mt-3 leading-relaxed text-muted lg:min-h-21">{pkg.audience}</p>
         <Price pkg={pkg} />
         <Button
           href="#contact"

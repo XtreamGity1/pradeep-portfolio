@@ -157,7 +157,7 @@ const GooeyNav = ({
           <feColorMatrix in="blur" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9" />
         </filter>
       </svg>
-      <nav aria-label={ariaLabel} className="relative flex [transform:translate3d(0,0,0.01px)]">
+      <nav aria-label={ariaLabel} className="relative flex transform-[translate3d(0,0,0.01px)]">
         <ul
           ref={navRef}
           className={`relative z-3 m-0 flex list-none p-0 ${listClassName} text-white [text-shadow:0_1px_1px_hsl(205deg_30%_10%/0.2)]`}
@@ -167,7 +167,7 @@ const GooeyNav = ({
               key={index}
               className={`relative cursor-pointer rounded-full shadow-[0_0_0.5px_1.5px_transparent] transition-[background-color,color,box-shadow] duration-300 after:absolute after:inset-0 after:-z-1 after:rounded-lg after:bg-white after:transition-all after:duration-300 ${
                 activeIndex === index
-                  ? 'text-black [text-shadow:none] after:scale-100 after:opacity-100'
+                  ? 'text-black text-shadow-none after:scale-100 after:opacity-100'
                   : 'text-white after:scale-0 after:opacity-0'
               }`}
             >
@@ -185,7 +185,7 @@ const GooeyNav = ({
       </nav>
       <span
         aria-hidden="true"
-        className={`${EFFECT_CLASS} [filter:url(#gooey-nav-goo)] after:absolute after:inset-0 after:-z-1 after:scale-0 after:rounded-full after:bg-white after:opacity-0 [&.active]:after:animate-gooey-pill`}
+        className={`${EFFECT_CLASS} filter-[url(#gooey-nav-goo)] after:absolute after:inset-0 after:-z-1 after:scale-0 after:rounded-full after:bg-white after:opacity-0 [&.active]:after:animate-gooey-pill`}
         ref={filterRef}
       />
       <span

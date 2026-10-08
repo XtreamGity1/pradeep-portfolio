@@ -10,7 +10,7 @@ const ROW_STYLES = [
 ];
 const VELOCITY = 50;
 // Fade the rows out at both edges so text never hard-clips against the viewport.
-const EDGE_FADE = '[mask-image:linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]';
+const EDGE_FADE = 'mask-[linear-gradient(to_right,transparent,black_12%,black_88%,transparent)]';
 
 // One row's items, separated by small accent stars.
 function RowText({ items }) {

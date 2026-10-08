@@ -51,7 +51,7 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4 pt-28 pb-24 sm:px-6 md:pt-32"
+      className="relative flex min-h-svh items-center justify-center overflow-hidden px-4 pt-28 pb-24 sm:px-6 md:pt-32"
     >
       {/* Decorative background: the reel on a muted loop (a still frame under reduced motion), faded into the page. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">

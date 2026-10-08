@@ -95,7 +95,7 @@ export default function Work() {
       <FilterBar active={filter} onChange={setFilter} count={visible.length} />
 
       {/* Every edit is landscape, so all rows share one height. */}
-      <ul aria-label="Edits" className="grid auto-rows-[280px] grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
+      <ul aria-label="Edits" className="grid auto-rows-70 grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {visible.map(edit => (
           <li key={edit.id}>
             <EditCard

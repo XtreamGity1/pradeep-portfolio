@@ -23,7 +23,7 @@ function Still({ className = '' }) {
         height={height}
         loading="lazy"
         decoding="async"
-        className={`block aspect-[4/5] h-auto w-full object-cover sm:aspect-[16/10] lg:aspect-[4/5] ${position}`}
+        className={`block aspect-4/5 h-auto w-full object-cover sm:aspect-16/10 lg:aspect-4/5 ${position}`}
       />
       <figcaption className="absolute bottom-4 left-4">
         <Pill tone="glass">{caption}</Pill>
