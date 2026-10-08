@@ -69,6 +69,49 @@ test('sitemap.xml lists the home page', async ({ page, request }) => {
   expect(body).toMatch(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/);
 });
 
+test('llms.txt introduces the site to AI agents with a title, summary and links', async ({ page, request }) => {
+  const site = await siteUrl(page);
+  const res = await request.get('/llms.txt');
+  expect(res.status()).toBe(200);
+  expect(res.headers()['content-type']).toContain('text/plain');
+  const body = await res.text();
+  expect(body).toMatch(new RegExp(`^# ${profile.name}\n`));
+  expect(body).toMatch(/^> .+/m);
+  expect(body).toContain(`](${site}#work)`);
+  expect(body).toContain(`](${site}#contact)`);
+  expect(body).toContain(`mailto:${profile.email}`);
+});
+
+test('fonts are self-hosted and the hero fonts are preloaded', async ({ page, request }) => {
+  const external = [];
+  page.on('request', req => {
+    if (/fonts\.(googleapis|gstatic)\.com/.test(req.url())) external.push(req.url());
+  });
+  await page.goto('/');
+  await page.evaluate(() => document.fonts.ready);
+  expect(external).toEqual([]);
+
+  const loaded = await page.evaluate(() =>
+    [...document.fonts].filter(font => font.status === 'loaded').map(font => `${font.family.replaceAll('"', '')} ${font.style}`),
+  );
+  expect(loaded).toEqual(expect.arrayContaining(['Inter Tight normal', 'Instrument Serif italic']));
+
+  const preloads = await page.locator('link[rel="preload"][as="font"]').evaluateAll(links =>
+    links.map(link => ({ href: link.getAttribute('href'), crossorigin: link.hasAttribute('crossorigin') })),
+  );
+  expect(preloads.length).toBeGreaterThan(0);
+  for (const { href, crossorigin } of preloads) {
+    expect(crossorigin, href).toBe(true);
+    const res = await request.get(href);
+    expect(res.status(), href).toBe(200);
+    expect(res.headers()['content-type'], href).toContain('font/woff2');
+  }
+
+  const csp = (await request.get('/')).headers()['content-security-policy'];
+  expect(csp).not.toContain('fonts.googleapis.com');
+  expect(csp).not.toContain('fonts.gstatic.com');
+});
+
 test('the 404 page links back home', async ({ page }) => {
   await page.goto('/404.html');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

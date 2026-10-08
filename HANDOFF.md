@@ -79,8 +79,13 @@ ffmpeg -ss 7.5 -t 30 -i media-src/Hero.MP4 -vf "fps=1,crop=1920:864:0:108,scale=
   and caching (`/assets` immutable, `/media` 1 day + stale-while-revalidate — rename a media file
   when replacing it). `vite preview` sends the same site-wide headers, so e2e runs under the CSP.
   Adding a third-party script, font, embed or API means adding its origin to the CSP.
-- `vite.config.js` `seo()` plugin: fills `__SITE_URL__` in `index.html`, emits `robots.txt` and
-  `sitemap.xml`. Vendor code is split into `react` / `motion` / `gsap` chunks.
+- `vite.config.js` `seo()` plugin: fills `__SITE_URL__` in `index.html`, emits `robots.txt`,
+  `sitemap.xml` and `llms.txt` (built from `src/data.js`, so it follows content edits). Vendor code is split into `react` / `motion` / `gsap` chunks.
+- Fonts are self-hosted in `public/fonts` (Google's Latin + Latin Extended woff2 subsets, `@font-face`
+  in `src/index.css`; the hero's two are preloaded in `index.html`). `/fonts` is cached for a year as
+  immutable, so give a replaced font file a new name.
+- Audit with Lighthouse against `yarn build && yarn preview` or a deployment, never `yarn dev` —
+  the dev server's unminified modules and missing `robots.txt` make the scores meaningless.
 - `public/`: `og-image.jpg` (1200×630 share card), `favicon.svg` + `apple-touch-icon.png` (PV mark),
   `404.html` (served by Vercel for unknown paths).
 - `e2e/production.spec.js` checks all of the above; `BASE_URL=https://… yarn test:e2e e2e/production.spec.js`

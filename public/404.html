@@ -9,11 +9,17 @@
     <title>Page not found — Pradeep Vangoori</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;600&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet" />
     <!-- Standalone page served by Vercel for unknown paths; colours match the @theme tokens in src/index.css. -->
     <style>
+      /* The site's self-hosted fonts (Latin subset; see src/index.css). */
+      @font-face {
+        font-family: 'Inter Tight'; font-style: normal; font-weight: 100 900; font-display: swap;
+        src: url('/fonts/inter-tight-latin-wght.woff2') format('woff2');
+      }
+      @font-face {
+        font-family: 'Instrument Serif'; font-style: italic; font-weight: 400; font-display: swap;
+        src: url('/fonts/instrument-serif-latin-italic.woff2') format('woff2');
+      }
       * { box-sizing: border-box; margin: 0; }
       body {
         min-height: 100svh; display: grid; place-items: center; padding: 1.5rem;

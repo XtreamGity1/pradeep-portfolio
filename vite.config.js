@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'vite'
+import { faqs, packages, profile, services } from './src/data.js'
 
 // Absolute production URL (with trailing slash) for the canonical link, share tags, robots.txt and
 // sitemap. On Vercel it is the project's production domain: the custom domain once one is added,
@@ -12,7 +13,43 @@ const SITE_URL = (process.env.SITE_URL || (productionHost ? `https://${productio
   '/',
 )
 
-// Fills __SITE_URL__ in index.html and emits robots.txt + sitemap.xml for the one-page site.
+// llms.txt (https://llmstxt.org): a plain-Markdown summary of the site for AI agents, built from src/data.js.
+function llmsTxt(site) {
+  const list = items => items.map(item => `- ${item}`).join('\n')
+  return `# ${profile.name}
+
+> ${profile.tagline}
+
+${profile.name} is an early-career video and content editor. ${profile.location}. Every edit shown is his own concept work; there are no brand clients yet. Prices are starting rates in US dollars.
+
+## Site
+
+${list([
+  `[Work](${site}#work): example edits, one editing technique each`,
+  `[Before & after](${site}#craft): raw footage next to the finished grade or composite`,
+  `[Services](${site}#services): what he edits and how fast`,
+  `[Pricing](${site}#pricing): packages and the free 60-second test edit`,
+  `[Process](${site}#process): how a project runs, from footage to final export`,
+  `[FAQ](${site}#faq): turnaround, revisions, file sharing, ownership and music licensing`,
+  `[Contact](${site}#contact): project inquiry form`,
+  `[Email](mailto:${profile.email}): ${profile.email}`,
+])}
+
+## Services
+
+${list(services.map(s => `${s.title} (${s.turnaround}): ${s.body}`))}
+
+## Pricing
+
+${list(packages.map(p => `${p.name}: from $${p.price} ${p.unit}, ${p.turnaround}, ${p.revisions}. ${p.audience}`))}
+
+## FAQ
+
+${list(faqs.map(f => `${f.question} ${f.answer}`))}
+`
+}
+
+// Fills __SITE_URL__ in index.html and emits robots.txt, sitemap.xml and llms.txt for the one-page site.
 function seo() {
   return {
     name: 'seo',
@@ -39,6 +76,7 @@ function seo() {
 </urlset>
 `,
       })
+      this.emitFile({ type: 'asset', fileName: 'llms.txt', source: llmsTxt(SITE_URL) })
     },
   }
 }
