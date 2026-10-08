@@ -491,7 +491,7 @@ export const faqs = [
 export const inquiry = {
   // Get a free key at https://web3forms.com (enter profile.email; the key arrives in that inbox).
   // It is safe to publish: it can only send to that inbox.
-  web3formsKey: '',
+  web3formsKey: '83feb851-cbab-444c-b1fd-f96f73dc1b04',
   title: 'Tell me about your video',
   intro: 'A few quick details and I’ll come back with ideas, a quote and a turnaround — usually the same day.',
   projectTypes: ['YouTube long-form', 'Shorts / Reels / TikTok', 'Podcast clips', 'Personal / event video', 'Other'],

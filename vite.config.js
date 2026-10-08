@@ -5,10 +5,10 @@ import { defineConfig } from 'vite'
 import { faqs, packages, profile, services } from './src/data.js'
 
 // Absolute production URL (with trailing slash) for the canonical link, share tags, robots.txt and
-// sitemap. On Vercel it is the project's production domain: the custom domain once one is added,
-// otherwise *.vercel.app. Set SITE_URL to override it anywhere.
+// sitemap. On Vercel it is the project's production domain (a custom domain once one is added);
+// elsewhere it falls back to the live site. Set SITE_URL to override it anywhere.
 const productionHost = process.env.VERCEL_PROJECT_PRODUCTION_URL
-const SITE_URL = (process.env.SITE_URL || (productionHost ? `https://${productionHost}` : 'https://example.com')).replace(
+const SITE_URL = (process.env.SITE_URL || (productionHost ? `https://${productionHost}` : 'https://pradeepvangoori.vercel.app')).replace(
   /\/*$/,
   '/',
 )
@@ -54,9 +54,6 @@ function seo() {
   return {
     name: 'seo',
     transformIndexHtml: html => html.replaceAll('__SITE_URL__', SITE_URL),
-    buildStart() {
-      if (SITE_URL === 'https://example.com/') this.warn('SITE_URL is not set; using https://example.com/')
-    },
     generateBundle() {
       const lastmod = new Date().toISOString().slice(0, 10)
       this.emitFile({
