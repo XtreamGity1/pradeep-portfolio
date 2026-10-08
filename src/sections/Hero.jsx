@@ -151,7 +151,15 @@ export default function Hero() {
         <Eyebrow as="span" tone="muted">
           Scroll
         </Eyebrow>
-        <span aria-hidden="true" className="h-8 w-px bg-linear-to-b from-current to-transparent motion-safe:animate-pulse" />
+        {/* A faint track with a highlight running down it into a chevron. */}
+        <span aria-hidden="true" className="flex flex-col items-center gap-1">
+          <span className="relative h-8 w-px overflow-hidden bg-current/20">
+            <span className="absolute inset-x-0 top-0 h-1/2 bg-linear-to-b from-transparent to-current motion-safe:animate-scroll-cue-line" />
+          </span>
+          <svg viewBox="0 0 12 8" fill="none" className="h-2 w-3 motion-safe:animate-scroll-cue-chevron">
+            <path d="M1 1.5 6 6.5l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
       </a>
 
       <ShowreelModal
