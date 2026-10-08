@@ -9,8 +9,10 @@ import { Button, Eyebrow, focusRing } from '../components/ui';
 import useMediaQuery from '../hooks/useMediaQuery';
 import { heroVideo, profile, showreel } from '../data';
 
-// Dimmed so the headline stays readable over bright footage.
-const HERO_MEDIA_CLASS = 'absolute inset-0 size-full object-cover opacity-60';
+// Dimmed so the headline stays readable over bright footage. The footage has letterbox bars baked in
+// (10% top and bottom, plus a caption in the bottom one); scaling to 125% pushes them out of frame so
+// no hard black edge cuts through the scroll cue.
+const HERO_MEDIA_CLASS = 'absolute inset-0 size-full scale-125 object-cover opacity-60';
 const ROLE_TRANSITION = { type: 'spring', damping: 30, stiffness: 400 };
 
 // The showreel button leads; these follow as secondary links.
