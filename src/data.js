@@ -29,7 +29,7 @@ export const showreel = {
   description: 'My favourite cuts in under a minute: colour grading, pacing and sound.',
   // Web encode of media-src/Hero.MP4 (1080p H.264 + AAC). Or set `embedUrl` to a YouTube/Vimeo embed.
   src: '/media/hero-reel.mp4',
-  poster: '/media/hero-poster.jpg',
+  poster: '/media/hero-poster.webp',
   embedUrl: '',
 };
 
@@ -38,7 +38,7 @@ export const showreel = {
 // loads, and instead of it when the viewer prefers reduced motion.
 export const heroVideo = {
   src: '/media/hero-loop.mp4',
-  poster: '/media/hero-poster.jpg',
+  poster: '/media/hero-poster.webp',
   offset: 7.5, // seconds into the full reel where the loop starts
 };
 
@@ -91,7 +91,7 @@ export const aboutDetails = {
   // Still from the reel's long-form segment (media-src/Hero.MP4 at 0:36.9, letterbox cropped).
   // `position` keeps her face in frame when the 20:9 still is cropped to portrait.
   image: {
-    src: '/media/reel/about-podcast.jpg',
+    src: '/media/reel/about-podcast.webp',
     alt: 'A podcast host in headphones smiling at a red microphone in a sound-treated studio',
     width: 1920,
     height: 864,
@@ -131,7 +131,7 @@ export const edits = [
     id: 'colour-grading',
     title: 'Colour grading',
     group: 'Colour & look',
-    image: '/media/reel/edit-colour-grading.jpg',
+    image: '/media/reel/edit-colour-grading.webp',
     summary: 'Flat log footage to a finished look',
     shows: 'Two shots — a river boat in morning haze and a portrait among flowers — start flat and grey, then a wipe reveals the finished grade.',
     how: [
@@ -145,7 +145,7 @@ export const edits = [
     id: 'sky-replacement',
     title: 'Sky replacement',
     group: 'Colour & look',
-    image: '/media/reel/edit-sky-replacement.jpg',
+    image: '/media/reel/edit-sky-replacement.webp',
     summary: 'An empty sky turned into a dramatic one',
     shows: 'A runway with gliders under a flat, cloudless sky, wiped over to the same shot under a sky full of clouds.',
     how: [
@@ -159,7 +159,7 @@ export const edits = [
     id: 'greenscreen-removal',
     title: 'Greenscreen removal',
     group: 'Compositing',
-    image: '/media/reel/edit-greenscreen-removal.jpg',
+    image: '/media/reel/edit-greenscreen-removal.webp',
     summary: 'A green screen turned into a news studio',
     shows: 'A presenter filmed against a green screen, composited into an animated “NEWS flash” studio set.',
     how: [
@@ -173,7 +173,7 @@ export const edits = [
     id: 'masking',
     title: 'Masking',
     group: 'Compositing',
-    image: '/media/reel/edit-masking.jpg',
+    image: '/media/reel/edit-masking.webp',
     summary: 'A logo revealed in the truck’s dust',
     shows: 'A pickup drifts past a cone and a “TOYOTA” logo appears in the dust cloud it leaves behind.',
     how: [
@@ -186,7 +186,7 @@ export const edits = [
     id: 'text-in-background',
     title: 'Text in background',
     group: 'Compositing',
-    image: '/media/reel/edit-text-in-background.jpg',
+    image: '/media/reel/edit-text-in-background.webp',
     summary: 'A title tucked behind a moving subject',
     shows: 'A hiker walks along a ridge in front of a large “SOLO HIKER” title that sits behind her.',
     how: [
@@ -199,7 +199,7 @@ export const edits = [
     id: 'motion-tracking',
     title: 'Motion tracking',
     group: 'Compositing',
-    image: '/media/reel/edit-motion-tracking.jpg',
+    image: '/media/reel/edit-motion-tracking.webp',
     summary: 'Text locked to a moving aerial shot',
     shows: '“FERTILE GROUND” lettering sits on a rice field and stays pinned to it as the drone moves overhead.',
     how: [
@@ -212,7 +212,7 @@ export const edits = [
     id: 'time-remapping',
     title: 'Time remapping',
     group: 'Motion & sound',
-    image: '/media/reel/edit-time-remapping.jpg',
+    image: '/media/reel/edit-time-remapping.webp',
     summary: 'Speed ramps through a race corner',
     shows: 'A superbike leans hard through a track corner, with the speed ramped through the turn.',
     how: [
@@ -225,7 +225,7 @@ export const edits = [
     id: 'sound-design',
     title: 'Sound design',
     group: 'Motion & sound',
-    image: '/media/reel/edit-sound-design.jpg',
+    image: '/media/reel/edit-sound-design.webp',
     summary: 'A reef dive built around its sound',
     shows: 'A diver waves to the camera as a striped reef fish swims past — turn the sound up for this one.',
     how: [
@@ -253,8 +253,8 @@ export const beforeAfter = {
       label: 'Colour grade',
       title: 'Flat log → finished grade',
       project: 'From my 2026 showreel · Portrait',
-      before: { label: 'Log', src: '/media/reel/ba-portrait-before.jpg', alt: 'Ungraded log footage of a woman with flowers in her hair: grey and low contrast' },
-      after: { label: 'Graded', src: '/media/reel/ba-portrait-after.jpg', alt: 'The same shot graded: warm skin, rich pinks and deep greens' },
+      before: { label: 'Log', src: '/media/reel/ba-portrait-before.webp', alt: 'Ungraded log footage of a woman with flowers in her hair: grey and low contrast' },
+      after: { label: 'Graded', src: '/media/reel/ba-portrait-after.webp', alt: 'The same shot graded: warm skin, rich pinks and deep greens' },
       changed: 'Balanced the exposure, lifted the contrast and warmed the skin tones, then pushed the pinks and greens.',
       why: 'The subject now pops from the background and the frame has a mood instead of a camera default.',
     },
@@ -263,8 +263,8 @@ export const beforeAfter = {
       label: 'Sky replacement',
       title: 'Empty sky → dramatic clouds',
       project: 'From my 2026 showreel · Airfield',
-      before: { label: 'Original', src: '/media/reel/ba-sky-before.jpg', alt: 'Gliders on a runway under a flat, cloudless sky' },
-      after: { label: 'Replaced', src: '/media/reel/ba-sky-after.jpg', alt: 'The same runway under a deep blue sky full of white clouds' },
+      before: { label: 'Original', src: '/media/reel/ba-sky-before.webp', alt: 'Gliders on a runway under a flat, cloudless sky' },
+      after: { label: 'Replaced', src: '/media/reel/ba-sky-after.webp', alt: 'The same runway under a deep blue sky full of white clouds' },
       changed: 'Masked out the flat sky and composited a cloudscape behind the hills, matched to the scene’s light.',
       why: 'Same shot, different story: a quiet airfield becomes a bright, cinematic day.',
     },
@@ -273,8 +273,8 @@ export const beforeAfter = {
       label: 'Greenscreen',
       title: 'Green screen → news studio',
       project: 'From my 2026 showreel · Presenter',
-      before: { label: 'Green screen', src: '/media/reel/ba-greenscreen-before.jpg', alt: 'A presenter holding a microphone in front of a green screen' },
-      after: { label: 'Composite', src: '/media/reel/ba-greenscreen-after.jpg', alt: 'The same presenter in front of an animated NEWS flash studio set' },
+      before: { label: 'Green screen', src: '/media/reel/ba-greenscreen-before.webp', alt: 'A presenter holding a microphone in front of a green screen' },
+      after: { label: 'Composite', src: '/media/reel/ba-greenscreen-after.webp', alt: 'The same presenter in front of an animated NEWS flash studio set' },
       changed: 'Keyed out the green, cleaned the edges and spill, and built an animated news set behind her.',
       why: 'A plain green-screen recording becomes a broadcast-style segment.',
     },
