@@ -32,17 +32,18 @@ The River grade before/after was dropped at the user's request (the reel has no 
 three comparisons remain: portrait grade, sky replacement, greenscreen.
 
 ## Waiting on the user
-- **Contact form key**: paste a free Web3Forms access key (web3forms.com, made for
-  `hello.pradeepvideo@gmail.com`) into `inquiry.web3formsKey` in `src/data.js`. Until then the form
-  falls back to opening an email draft. e2e mocks Web3Forms, so tests never email the inbox.
+- **Contact form**: live. `inquiry.web3formsKey` in `src/data.js` holds the Web3Forms key, so the
+  form emails `hello.pradeepvideo@gmail.com` directly (250 a month free). e2e mocks Web3Forms, so
+  tests never email the inbox.
 - **Contact details**: email is `hello.pradeepvideo@gmail.com` (user confirmed). The reel also shows
   `@pradeep_9.k`; ask before adding it.
 - **Social links**: `profile.socials` in `src/data.js` still point at bare homepages
   (`https://youtube.com` …). Replace with real profile URLs (or remove), then consider adding them
   as `sameAs` in the JSON-LD in `index.html`.
-- **Domain**: nothing to edit. On Vercel the build reads `VERCEL_PROJECT_PRODUCTION_URL` (the custom
-  domain once added, else `*.vercel.app`) into canonical / og / JSON-LD / robots.txt / sitemap.xml.
-  `SITE_URL=https://… yarn build` overrides it; local builds fall back to `example.com` with a warning.
+- **Domain**: https://pradeepvangoori.vercel.app. On Vercel the build reads
+  `VERCEL_PROJECT_PRODUCTION_URL` (a custom domain takes over once added) into canonical / og /
+  JSON-LD / robots.txt / sitemap.xml; other builds fall back to the vercel.app domain.
+  `SITE_URL=https://… yarn build` overrides it.
 - **Smaller hero loop for phones** (needs ffmpeg, not currently installed): the 4.4 MB loop is most of
   a phone's first load. A ~640px encode served via `<source media>` would roughly halve it.
 - The 8 merged worker worktrees in `.claude/worktrees/` (+ `worktree-agent-*` branches) can be deleted.
