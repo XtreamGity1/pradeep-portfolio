@@ -48,9 +48,9 @@
     <!-- The hero's first frame is the largest thing above the fold: fetch it first. -->
     <link rel="preload" as="image" type="image/webp" href="/media/hero-poster.webp" fetchpriority="high" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <!-- Self-hosted fonts (@font-face in src/index.css): preload the two the hero headline uses. -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-tight-latin-wght.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/instrument-serif-latin-italic.woff2" crossorigin />
   </head>
   <body>
     <div id="root"></div>
