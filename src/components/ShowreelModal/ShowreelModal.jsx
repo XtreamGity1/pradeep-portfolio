@@ -91,7 +91,7 @@ export default function ShowreelModal({ open, reel, onClose, returnFocusRef }) {
             exit={pop}
             transition={fade}
             // Width is capped by the viewport height too, so the 16:9 player never overflows a landscape screen.
-            className="relative m-auto w-full max-w-[min(72rem,calc((100svh_-_10rem)*16/9))] min-w-0"
+            className="relative m-auto w-full max-w-[min(72rem,calc((100svh-10rem)*16/9))] min-w-0"
           >
             <div className="mb-4 flex items-end justify-between gap-4">
               <div className="min-w-0">

@@ -107,7 +107,7 @@ export default function BeforeAfter() {
           {/* Keyed so each comparison starts centered with fresh images. */}
           <CompareSlider
             key={current.id}
-            aspect="aspect-[20/9]"
+            aspect="aspect-20/9"
             beforeLabel={current.before.label}
             afterLabel={current.after.label}
             before={<img {...frameImg} src={current.before.src} alt={current.before.alt} className={coverImg} />}

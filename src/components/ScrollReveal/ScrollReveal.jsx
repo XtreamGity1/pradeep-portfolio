@@ -104,7 +104,7 @@ const ScrollReveal = ({
   // A plain wrapper (not the upstream <h2>) so the reveal never adds a heading to the outline.
   return (
     <div ref={containerRef} className={`my-5 ${containerClassName}`}>
-      <p className={`text-[clamp(1.6rem,4vw,3rem)] leading-[1.5] font-semibold ${textClassName}`}>{splitText}</p>
+      <p className={`text-[clamp(1.6rem,4vw,3rem)] leading-normal font-semibold ${textClassName}`}>{splitText}</p>
     </div>
   );
 };

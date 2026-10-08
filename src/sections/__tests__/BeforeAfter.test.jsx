@@ -70,7 +70,7 @@ describe('BeforeAfter', () => {
   test('shows the real reel stills unretouched in a 20:9 frame', () => {
     const { container } = render(<BeforeAfter />);
     const panel = screen.getByRole('tabpanel', { name: comparisons[0].label });
-    expect(container.querySelector('[data-compare-frame]')).toHaveClass('aspect-[20/9]');
+    expect(container.querySelector('[data-compare-frame]')).toHaveClass('aspect-20/9');
     // Just the two stills: no simulated captions, lower thirds or reframe crops on top.
     const images = within(panel).getAllByRole('img');
     expect(images).toHaveLength(2);

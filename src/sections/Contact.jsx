@@ -22,8 +22,8 @@ const BLURB_CLASS = 'mt-6 max-w-xl text-base leading-relaxed text-muted sm:mt-8 
 
 // Decorative blurred glows layered behind the content.
 const glows = [
-  'left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 bg-accent/20 blur-[100px] sm:h-[28rem] sm:w-[28rem] md:h-[40rem] md:w-[40rem] md:blur-[120px]',
-  'left-[20%] top-[20%] h-48 w-48 -translate-x-1/2 bg-accent-2/15 blur-[90px] sm:h-64 sm:w-64',
+  'left-1/2 top-1/2 size-72 -translate-1/2 bg-accent/20 blur-[100px] sm:size-112 md:size-160 md:blur-[120px]',
+  'left-[20%] top-[20%] size-48 -translate-x-1/2 bg-accent-2/15 blur-[90px] sm:size-64',
 ];
 
 export default function Contact() {

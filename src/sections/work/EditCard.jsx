@@ -15,7 +15,7 @@ const tiltSize = {
 // The title button stretches over the whole card, so the card itself is the click/tap target.
 function EditOverlay({ edit, onOpen, buttonRef }) {
   return (
-    <div className="relative flex h-full w-full flex-col justify-between rounded-[15px] bg-linear-to-b from-ink/40 via-ink/10 to-ink/95 p-4 sm:p-5">
+    <div className="relative flex size-full flex-col justify-between rounded-[15px] bg-linear-to-b from-ink/40 via-ink/10 to-ink/95 p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <Pill tone="glass">{edit.group}</Pill>
         <span

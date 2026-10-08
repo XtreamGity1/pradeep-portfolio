@@ -15,7 +15,7 @@ export default function Footer() {
         <div>
           <p className="font-semibold tracking-tight text-fg">{profile.name}</p>
           <p className="mt-1 flex items-baseline gap-2 text-sm text-muted">
-            <span aria-hidden="true" className="size-2 shrink-0 translate-y-[-1px] rounded-full bg-accent motion-safe:animate-pulse" />
+            <span aria-hidden="true" className="size-2 shrink-0 -translate-y-px rounded-full bg-accent motion-safe:animate-pulse" />
             <span>
               {footer.availability} · {profile.location}
             </span>
